@@ -110,6 +110,38 @@
 			});
 		}
 
+		document.querySelectorAll('.reco-property-search').forEach((searchPanel) => {
+			const transactions = Array.from(searchPanel.querySelectorAll('input[name="giao-dich"]'));
+			const priceRange = searchPanel.querySelector('[data-price-range]');
+			const priceLabel = searchPanel.querySelector('[data-price-label]');
+			if (!transactions.length || !priceRange) return;
+
+			let priceOptions = {};
+			try {
+				priceOptions = JSON.parse(priceRange.dataset.priceOptions || '{}');
+			} catch (error) {
+				priceOptions = {};
+			}
+
+			const updatePriceRanges = () => {
+				const checked = transactions.find((input) => input.checked);
+				const transaction = checked ? checked.value : 'mua';
+				const context = transaction === 'cho-thue' ? 'thuê' : 'bán';
+				const selectedValue = priceRange.value;
+				const choices = priceOptions[transaction] || {};
+
+				priceRange.replaceChildren(new Option(`Tất cả giá ${context}`, ''));
+				Object.entries(choices).forEach(([value, label]) => {
+					priceRange.add(new Option(label, value));
+				});
+				priceRange.value = Object.prototype.hasOwnProperty.call(choices, selectedValue) ? selectedValue : '';
+				if (priceLabel) priceLabel.textContent = `Khoảng giá ${context}`;
+			};
+
+			transactions.forEach((input) => input.addEventListener('change', updatePriceRanges));
+			updatePriceRanges();
+		});
+
 		const contactForm = document.querySelector('[data-contact-form]');
 		if (contactForm) {
 			const params = new URLSearchParams(window.location.search);

@@ -42,6 +42,18 @@ function reco_enqueue_assets() {
 }
 add_action( 'wp_enqueue_scripts', 'reco_enqueue_assets', 90 );
 
+function reco_enqueue_project_admin_assets() {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! $screen || 'reco_project' !== $screen->post_type ) {
+		return;
+	}
+
+	$script_path    = get_stylesheet_directory() . '/assets/js/reco-project-admin.js';
+	$script_version = file_exists( $script_path ) ? (string) filemtime( $script_path ) : wp_get_theme()->get( 'Version' );
+	wp_enqueue_script( 'reco-project-admin', reco_asset( 'js/reco-project-admin.js' ), array( 'jquery' ), $script_version, true );
+}
+add_action( 'acf/input/admin_enqueue_scripts', 'reco_enqueue_project_admin_assets' );
+
 function reco_body_classes( $classes ) {
 	$classes[] = 'reco-site';
 	if ( is_front_page() ) {

@@ -55,12 +55,26 @@ function reco_register_project_detail_fields() {
 					'wrapper'       => array( 'width' => 25 ),
 				),
 				array(
+					'key'           => 'field_reco_project_transaction',
+					'label'         => 'Hình thức giao dịch',
+					'name'          => 'reco_project_transaction',
+					'type'          => 'select',
+					'choices'       => reco_project_transaction_choices(),
+					'default_value' => 'mua',
+					'return_format' => 'value',
+					'ui'            => 1,
+					'wrapper'       => array( 'width' => 25 ),
+				),
+				array(
 					'key'           => 'field_reco_project_price',
 					'label'         => 'Giá bán',
-					'name'          => 'reco_project_price',
-					'type'          => 'text',
-					'instructions'  => 'Ví dụ: Thỏa thuận hoặc Từ 65 triệu/m².',
-					'default_value' => 'Liên hệ',
+					'name'          => 'reco_project_price_value',
+					'type'          => 'number',
+					'instructions'  => 'Nhập giá bán thực tế theo đơn vị tỷ đồng. Để trống nếu giá là Liên hệ.',
+					'placeholder'   => 'Ví dụ: 3.5',
+					'append'        => 'tỷ đồng',
+					'min'           => 0.01,
+					'step'          => 0.01,
 					'wrapper'       => array( 'width' => 25 ),
 				),
 				array(
@@ -167,10 +181,10 @@ function reco_register_project_detail_fields() {
 					'label'        => 'Các tab vị trí',
 					'name'         => 'reco_project_location_tabs',
 					'type'         => 'repeater',
-					'instructions' => 'Trang mẫu có 2 tab: Vị trí dự án và Tiện ích vùng.',
+					'instructions' => 'Mặc định gồm 2 tab theo thứ tự: Vị trí và Liên kết vùng.',
 					'layout'       => 'block',
 					'button_label' => 'Thêm tab vị trí',
-					'min'          => 0,
+					'min'          => 2,
 					'max'          => 4,
 					'sub_fields'   => array(
 						array(
@@ -222,23 +236,14 @@ function reco_register_project_detail_fields() {
 					'default_value' => 'Tiện ích dự án',
 				),
 				array(
-					'key'          => 'field_reco_project_amenities',
-					'label'        => 'Danh sách tiện ích',
-					'name'         => 'reco_project_amenities',
-					'type'         => 'repeater',
-					'layout'       => 'table',
-					'button_label' => 'Thêm tiện ích',
-					'min'          => 0,
-					'max'          => 30,
-					'sub_fields'   => array(
-						array(
-							'key'      => 'field_reco_amenity_name',
-							'label'    => 'Tên tiện ích',
-							'name'     => 'reco_amenity_name',
-							'type'     => 'text',
-							'required' => 1,
-						),
-					),
+					'key'          => 'field_reco_project_amenities_description',
+					'label'        => 'Mô tả chung tiện ích',
+					'name'         => 'reco_project_amenities_description',
+					'type'         => 'wysiwyg',
+					'instructions' => 'Nhập toàn bộ nội dung tiện ích tại đây; có thể dùng danh sách dấu đầu dòng trong trình soạn thảo.',
+					'tabs'         => 'all',
+					'toolbar'      => 'basic',
+					'media_upload' => 0,
 				),
 				array(
 					'key'          => 'field_reco_project_amenities_gallery',
@@ -377,3 +382,80 @@ function reco_register_project_detail_fields() {
 	);
 }
 add_action( 'acf/init', 'reco_register_project_detail_fields' );
+
+/**
+ * Seed the two standard location tabs without replacing saved project content.
+ */
+function reco_project_default_location_tabs( $value, $post_id, $field ) {
+	$defaults = array(
+		array(
+			'field_reco_location_tab_label'   => 'Vị trí',
+			'field_reco_location_tab_heading' => 'Vị trí dự án',
+			'field_reco_location_tab_content' => '',
+			'field_reco_location_tab_image'   => '',
+		),
+		array(
+			'field_reco_location_tab_label'   => 'Liên kết vùng',
+			'field_reco_location_tab_heading' => 'Liên kết vùng',
+			'field_reco_location_tab_content' => '',
+			'field_reco_location_tab_image'   => '',
+		),
+	);
+
+	$value = is_array( $value ) ? array_values( $value ) : array();
+	if ( ! $value ) {
+		return $defaults;
+	}
+
+	$ordered   = array( null, null );
+	$remaining = array();
+	foreach ( $value as $row ) {
+		$label = isset( $row['field_reco_location_tab_label'] ) ? trim( (string) $row['field_reco_location_tab_label'] ) : '';
+
+		if ( null === $ordered[0] && in_array( $label, array( 'Vị trí', 'Vị trí dự án' ), true ) ) {
+			$row['field_reco_location_tab_label'] = 'Vị trí';
+			$ordered[0]                           = $row;
+		} elseif ( null === $ordered[1] && in_array( $label, array( 'Liên kết vùng', 'Tiện ích vùng' ), true ) ) {
+			$row['field_reco_location_tab_label'] = 'Liên kết vùng';
+			$ordered[1]                           = $row;
+		} else {
+			$remaining[] = $row;
+		}
+	}
+
+	// Keep unfamiliar custom tabs untouched. If there are no standard labels yet,
+	// preserve their order and only append the missing standard row.
+	if ( null === $ordered[0] && null === $ordered[1] ) {
+		for ( $index = count( $value ); $index < count( $defaults ); ++$index ) {
+			$value[] = $defaults[ $index ];
+		}
+		return $value;
+	}
+
+	$ordered[0] = null === $ordered[0] ? $defaults[0] : $ordered[0];
+	$ordered[1] = null === $ordered[1] ? $defaults[1] : $ordered[1];
+
+	return array_merge( $ordered, $remaining );
+}
+add_filter( 'acf/load_value/name=reco_project_location_tabs', 'reco_project_default_location_tabs', 20, 3 );
+
+/**
+ * Move legacy amenity rows into the shared description field when it is empty.
+ */
+function reco_project_legacy_amenities_description( $value, $post_id, $field ) {
+	if ( trim( (string) $value ) || ! is_numeric( $post_id ) ) {
+		return $value;
+	}
+
+	$row_count = absint( get_post_meta( (int) $post_id, 'reco_project_amenities', true ) );
+	$items     = array();
+	for ( $index = 0; $index < $row_count; ++$index ) {
+		$name = trim( (string) get_post_meta( (int) $post_id, 'reco_project_amenities_' . $index . '_reco_amenity_name', true ) );
+		if ( $name ) {
+			$items[] = '<li>' . esc_html( $name ) . '</li>';
+		}
+	}
+
+	return $items ? '<ul>' . implode( '', $items ) . '</ul>' : $value;
+}
+add_filter( 'acf/load_value/name=reco_project_amenities_description', 'reco_project_legacy_amenities_description', 20, 3 );

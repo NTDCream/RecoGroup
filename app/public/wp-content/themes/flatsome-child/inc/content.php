@@ -185,6 +185,241 @@ function reco_project_status_label( $status ) {
 }
 
 /**
+ * Fixed transaction choices shared by WP Admin and the public search form.
+ */
+function reco_project_transaction_choices() {
+	return array(
+		'mua'      => 'Mua',
+		'cho-thue' => 'Cho thuê',
+	);
+}
+
+/**
+ * Fixed price ranges. Keys include the transaction to prevent ambiguity.
+ */
+function reco_project_price_groups() {
+	return array(
+		'Mua'      => array(
+			'mua-duoi-2-ty'  => 'Dưới 2 tỷ',
+			'mua-2-3-ty'     => 'Từ 2 – 3 tỷ',
+			'mua-3-5-ty'     => 'Từ 3 – 5 tỷ',
+			'mua-5-10-ty'    => 'Từ 5 – 10 tỷ',
+			'mua-tren-10-ty' => 'Trên 10 tỷ',
+		),
+		'Cho thuê' => array(
+			'thue-duoi-5-trieu'  => 'Dưới 5 triệu/tháng',
+			'thue-5-10-trieu'    => 'Từ 5 – 10 triệu/tháng',
+			'thue-10-20-trieu'   => 'Từ 10 – 20 triệu/tháng',
+			'thue-20-30-trieu'   => 'Từ 20 – 30 triệu/tháng',
+			'thue-tren-30-trieu' => 'Trên 30 triệu/tháng',
+		),
+		'Khác'     => array(
+			'lien-he' => 'Liên hệ',
+		),
+	);
+}
+
+function reco_project_price_choices() {
+	$flattened = array();
+	foreach ( reco_project_price_groups() as $choices ) {
+		foreach ( $choices as $value => $label ) {
+			$flattened[ $value ] = $label;
+		}
+	}
+	return $flattened;
+}
+
+/**
+ * Return only the prices that belong to the selected transaction.
+ */
+function reco_project_price_choices_for_transaction( $transaction ) {
+	$prefix  = 'cho-thue' === $transaction ? 'thue-' : 'mua-';
+	$choices = array();
+
+	foreach ( reco_project_price_choices() as $value => $label ) {
+		if ( 0 === strpos( $value, $prefix ) ) {
+			$choices[ $value ] = $label;
+		}
+	}
+
+	return $choices;
+}
+
+function reco_project_price_label( $value ) {
+	foreach ( reco_project_price_groups() as $choices ) {
+		if ( isset( $choices[ $value ] ) ) {
+			return $choices[ $value ];
+		}
+	}
+
+	return $value ?: 'Liên hệ';
+}
+
+/**
+ * Numeric bounds used to match an exact project price against search ranges.
+ * Sale values are stored in billions; rental values in millions per month.
+ */
+function reco_project_price_ranges() {
+	return array(
+		'mua-duoi-2-ty'       => array( 'transaction' => 'mua', 'max' => 2, 'max_compare' => '<' ),
+		'mua-2-3-ty'          => array( 'transaction' => 'mua', 'min' => 2, 'max' => 3 ),
+		'mua-3-5-ty'          => array( 'transaction' => 'mua', 'min' => 3, 'max' => 5 ),
+		'mua-5-10-ty'         => array( 'transaction' => 'mua', 'min' => 5, 'max' => 10 ),
+		'mua-tren-10-ty'      => array( 'transaction' => 'mua', 'min' => 10, 'min_compare' => '>' ),
+		'thue-duoi-5-trieu'   => array( 'transaction' => 'cho-thue', 'max' => 5, 'max_compare' => '<' ),
+		'thue-5-10-trieu'     => array( 'transaction' => 'cho-thue', 'min' => 5, 'max' => 10 ),
+		'thue-10-20-trieu'    => array( 'transaction' => 'cho-thue', 'min' => 10, 'max' => 20 ),
+		'thue-20-30-trieu'    => array( 'transaction' => 'cho-thue', 'min' => 20, 'max' => 30 ),
+		'thue-tren-30-trieu'  => array( 'transaction' => 'cho-thue', 'min' => 30, 'min_compare' => '>' ),
+	);
+}
+
+/**
+ * Format an exact project price for cards and the project detail page.
+ * Falls back to the former range value for projects that have not been updated.
+ */
+function reco_project_display_price( $post_id, $transaction = '' ) {
+	$transaction = $transaction ?: reco_project_field( 'reco_project_transaction', $post_id, 'mua' );
+	$exact_price = reco_project_field( 'reco_project_price_value', $post_id, '' );
+
+	if ( is_numeric( $exact_price ) && (float) $exact_price > 0 ) {
+		$formatted = number_format( (float) $exact_price, 2, ',', '.' );
+		$formatted = rtrim( rtrim( $formatted, '0' ), ',' );
+		$unit      = 'cho-thue' === $transaction ? ' triệu/tháng' : ' tỷ đồng';
+		return $formatted . $unit;
+	}
+
+	$legacy_price = get_post_meta( $post_id, 'reco_project_price', true );
+	return reco_project_price_label( $legacy_price );
+}
+
+function reco_project_transaction_label( $value ) {
+	$choices = reco_project_transaction_choices();
+	return isset( $choices[ $value ] ) ? $choices[ $value ] : $choices['mua'];
+}
+
+function reco_project_search_value( $key, $default = '' ) {
+	return isset( $_GET[ $key ] ) ? sanitize_key( wp_unslash( $_GET[ $key ] ) ) : $default;
+}
+
+/**
+ * Search panel used above the project overview and on project results.
+ */
+function reco_project_search_form( $args = array() ) {
+	static $form_index = 0;
+	++$form_index;
+
+	$args = wp_parse_args(
+		$args,
+		array(
+			'transaction' => 'mua',
+			'heading'     => 'Tìm kiếm bất động sản',
+		)
+	);
+
+	$transaction = reco_project_search_value( 'giao-dich', $args['transaction'] );
+	if ( ! isset( reco_project_transaction_choices()[ $transaction ] ) ) {
+		$transaction = 'mua';
+	}
+	$selected_price    = reco_project_search_value( 'khoang-gia' );
+	$selected_province = reco_project_search_value( 'tinh-thanh' );
+	$provinces         = get_terms( array( 'taxonomy' => 'reco_location', 'hide_empty' => false, 'parent' => 0 ) );
+	$provinces         = is_wp_error( $provinces ) ? array() : $provinces;
+	$action            = get_post_type_archive_link( 'reco_project' ) ?: home_url( '/du-an/' );
+	$price_options     = array(
+		'mua'      => reco_project_price_choices_for_transaction( 'mua' ),
+		'cho-thue' => reco_project_price_choices_for_transaction( 'cho-thue' ),
+	);
+	$current_prices    = $price_options[ $transaction ];
+	$price_context     = 'cho-thue' === $transaction ? 'thuê' : 'bán';
+	if ( $selected_price && ! isset( $current_prices[ $selected_price ] ) ) {
+		$selected_price = '';
+	}
+	?>
+	<section class="reco-property-search" aria-label="Tìm kiếm dự án">
+		<div class="reco-container">
+			<div class="reco-property-search__head">
+				<div><span>Tìm đúng nhu cầu</span><h2><?php echo esc_html( $args['heading'] ); ?></h2></div>
+				<div class="reco-property-search__transaction-field">
+					<span>Hình thức</span>
+					<div class="reco-property-search__transactions" role="radiogroup" aria-label="Hình thức giao dịch">
+						<?php foreach ( reco_project_transaction_choices() as $value => $label ) :
+							$control_id = 'reco-transaction-' . $form_index . '-' . $value;
+							?>
+							<input id="<?php echo esc_attr( $control_id ); ?>" type="radio" name="giao-dich" value="<?php echo esc_attr( $value ); ?>" form="reco-project-search-<?php echo esc_attr( $form_index ); ?>" <?php checked( $transaction, $value ); ?>>
+							<label for="<?php echo esc_attr( $control_id ); ?>"><?php echo esc_html( $label ); ?></label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</div>
+			<form id="reco-project-search-<?php echo esc_attr( $form_index ); ?>" class="reco-property-search__form" action="<?php echo esc_url( $action ); ?>" method="get" data-property-search>
+				<label><span data-price-label>Khoảng giá <?php echo esc_html( $price_context ); ?></span><select name="khoang-gia" data-price-range data-price-options="<?php echo esc_attr( wp_json_encode( $price_options ) ); ?>"><option value="">Tất cả giá <?php echo esc_html( $price_context ); ?></option><?php foreach ( $current_prices as $value => $label ) : ?><option value="<?php echo esc_attr( $value ); ?>" <?php selected( $selected_price, $value ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></label>
+				<label><span>Tỉnh/Thành</span><select name="tinh-thanh"><option value="">Toàn quốc</option><?php foreach ( $provinces as $province ) : ?><option value="<?php echo esc_attr( $province->slug ); ?>" <?php selected( $selected_province, $province->slug ); ?>><?php echo esc_html( $province->name ); ?></option><?php endforeach; ?></select></label>
+				<button type="submit">Tìm kiếm <span aria-hidden="true">→</span></button>
+			</form>
+		</div>
+	</section>
+	<?php
+}
+
+function reco_filter_project_archive( $query ) {
+	if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( 'reco_project' ) ) {
+		return;
+	}
+
+	$transaction = reco_project_search_value( 'giao-dich', 'mua' );
+	$price       = reco_project_search_value( 'khoang-gia' );
+	$type        = reco_project_search_value( 'loai-hinh' );
+	$province    = reco_project_search_value( 'tinh-thanh' );
+	$meta_query  = array();
+	$tax_query   = array( 'relation' => 'AND' );
+
+	if ( isset( reco_project_transaction_choices()[ $transaction ] ) ) {
+		$meta_query[] = array( 'key' => 'reco_project_transaction', 'value' => $transaction );
+	}
+	$price_ranges = reco_project_price_ranges();
+	if ( $price && isset( $price_ranges[ $price ] ) && $transaction === $price_ranges[ $price ]['transaction'] ) {
+		$range         = $price_ranges[ $price ];
+		$numeric_query = array( 'relation' => 'AND' );
+
+		if ( isset( $range['min'] ) ) {
+			$numeric_query[] = array(
+				'key'     => 'reco_project_price_value',
+				'value'   => $range['min'],
+				'compare' => isset( $range['min_compare'] ) ? $range['min_compare'] : '>=',
+				'type'    => 'DECIMAL(10,2)',
+			);
+		}
+		if ( isset( $range['max'] ) ) {
+			$numeric_query[] = array(
+				'key'     => 'reco_project_price_value',
+				'value'   => $range['max'],
+				'compare' => isset( $range['max_compare'] ) ? $range['max_compare'] : '<=',
+				'type'    => 'DECIMAL(10,2)',
+			);
+		}
+
+		$meta_query[] = $numeric_query;
+	}
+	if ( $type ) {
+		$tax_query[] = array( 'taxonomy' => 'reco_project_type', 'field' => 'slug', 'terms' => $type );
+	}
+	if ( $province ) {
+		$tax_query[] = array( 'taxonomy' => 'reco_location', 'field' => 'slug', 'terms' => $province, 'include_children' => true );
+	}
+
+	if ( $meta_query ) {
+		$query->set( 'meta_query', $meta_query );
+	}
+	if ( count( $tax_query ) > 1 ) {
+		$query->set( 'tax_query', $tax_query );
+	}
+	$query->set( 'posts_per_page', 12 );
+	$query->set( 'orderby', array( 'menu_order' => 'ASC', 'date' => 'DESC' ) );
+}
+add_action( 'pre_get_posts', 'reco_filter_project_archive' );
+
+/**
  * Project catalogue used on the temporary Test page.
  * Content remains editable in WP Admin through Secure Custom Fields.
  */

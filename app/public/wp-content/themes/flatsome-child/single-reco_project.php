@@ -14,7 +14,10 @@ while ( have_posts() ) :
 	$facts               = (array) reco_project_field( 'reco_project_facts', $post_id, array() );
 	$tagline             = reco_project_field( 'reco_project_tagline', $post_id );
 	$address             = reco_project_field( 'reco_project_address', $post_id );
-	$price               = reco_project_field( 'reco_project_price', $post_id, 'Liên hệ' );
+	$transaction         = reco_project_field( 'reco_project_transaction', $post_id, 'mua' );
+	$transaction_label   = reco_project_transaction_label( $transaction );
+	$price               = reco_project_display_price( $post_id, $transaction );
+	$price_caption       = 'cho-thue' === $transaction ? 'Giá thuê' : 'Giá bán';
 	$hotline             = reco_project_field( 'reco_project_hotline', $post_id, '0934 524 445' );
 	$hotline_href        = preg_replace( '/[^0-9+]/', '', $hotline );
 	$types               = reco_project_term_names( $post_id, 'reco_project_type' );
@@ -26,7 +29,7 @@ while ( have_posts() ) :
 	$overview_image      = absint( reco_project_field( 'reco_project_overview_image', $post_id, 0 ) );
 	$location_tabs       = (array) reco_project_field( 'reco_project_location_tabs', $post_id, array() );
 	$amenities_heading   = reco_project_field( 'reco_project_amenities_heading', $post_id, 'Tiện ích dự án ' . get_the_title() );
-	$amenities           = (array) reco_project_field( 'reco_project_amenities', $post_id, array() );
+	$amenities_description = reco_project_field( 'reco_project_amenities_description', $post_id );
 	$amenities_gallery   = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_project_amenities_gallery', $post_id, array() ) ) ) );
 	$floorplan_heading   = reco_project_field( 'reco_project_floorplan_heading', $post_id, 'Mặt bằng tổng thể dự án ' . get_the_title() );
 	$floorplan_content   = reco_project_field( 'reco_project_floorplan_content', $post_id );
@@ -43,35 +46,6 @@ while ( have_posts() ) :
 	}
 	if ( ! $overview_image && $gallery ) {
 		$overview_image = $gallery[0];
-	}
-	if ( ! $amenities_gallery ) {
-		$amenities_gallery = $gallery;
-	}
-	if ( ! $apartment_gallery ) {
-		$apartment_gallery = $gallery;
-	}
-	if ( ! $amenities && $tags ) {
-		foreach ( $tags as $tag ) {
-			$amenities[] = array( 'reco_amenity_name' => $tag );
-		}
-	}
-	if ( ! $location_tabs ) {
-		$location_tabs[] = array(
-			'reco_location_tab_label'   => 'Vị trí dự án',
-			'reco_location_tab_heading' => 'Vị trí dự án ' . get_the_title(),
-			'reco_location_tab_content' => $address ? '<p>' . esc_html( get_the_title() . ' tọa lạc tại ' . $address . '. Thông tin kết nối vùng và các tuyến giao thông lân cận có thể cập nhật trực tiếp trong WP Admin.' ) . '</p>' : '',
-			'reco_location_tab_image'   => isset( $gallery[1] ) ? $gallery[1] : $overview_image,
-		);
-	}
-	if ( ! $floorplan_content ) {
-		$floorplan_content = '<p>Mặt bằng dự án được tổ chức rõ ràng theo từng khối chức năng. Nội dung chi tiết về tầng, loại hình sản phẩm và diện tích có thể cập nhật trực tiếp trong WP Admin.</p>';
-	}
-	if ( ! $floorplan_tabs && $gallery ) {
-		$floorplan_tabs[] = array(
-			'reco_floorplan_label' => 'Mặt bằng tổng thể',
-			'reco_floorplan_image' => end( $gallery ),
-			'reco_floorplan_note'  => 'Hình ảnh minh họa mặt bằng dự án.',
-		);
 	}
 
 	$hero_gallery = $gallery;
@@ -111,12 +85,7 @@ while ( have_posts() ) :
 			</section>
 		<?php endif; ?>
 
-		<section class="reco-project-blueprint" aria-hidden="true">
-			<div class="reco-container reco-project-blueprint__inner">
-				<strong>Sản phẩm</strong>
-				<span>Nổi bật của dự án</span>
-			</div>
-		</section>
+		<?php reco_project_search_form( array( 'transaction' => $transaction ) ); ?>
 
 		<section class="reco-project-summary">
 			<div class="reco-container reco-project-summary__grid">
@@ -133,7 +102,7 @@ while ( have_posts() ) :
 					<div class="reco-project-summary__intro reco-project-rich-text"><?php echo wp_kses_post( $render_rich_text( $overview_intro ) ); ?></div>
 				</div>
 				<aside class="reco-project-price-card" aria-label="Thông tin giá và liên hệ">
-					<div class="reco-project-price-card__price"><span>Giá bán</span><strong><?php echo esc_html( $price ); ?></strong></div>
+					<div class="reco-project-price-card__price"><span><?php echo esc_html( $price_caption ); ?></span><strong><?php echo esc_html( $price ); ?></strong><small><?php echo esc_html( $transaction_label ); ?></small></div>
 					<a href="tel:<?php echo esc_attr( $hotline_href ); ?>">
 						<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7.3 3.2l2.2 4.1-1.8 1.8a14.4 14.4 0 007.2 7.2l1.8-1.8 4.1 2.2-.7 3.2c-.2.8-.9 1.4-1.7 1.4C9.8 21.3 2.7 14.2 2.7 5.6c0-.8.6-1.5 1.4-1.7l3.2-.7z" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
 						<?php echo esc_html( $hotline ); ?>
@@ -184,7 +153,7 @@ while ( have_posts() ) :
 						$tab_content = isset( $tab['reco_location_tab_content'] ) ? $tab['reco_location_tab_content'] : '';
 						$tab_image   = isset( $tab['reco_location_tab_image'] ) ? absint( $tab['reco_location_tab_image'] ) : 0;
 						?>
-						<div class="reco-project-location__panel" id="reco-location-panel-<?php echo esc_attr( $index ); ?>" role="tabpanel" aria-labelledby="reco-location-tab-<?php echo esc_attr( $index ); ?>" <?php echo 0 === $index ? '' : 'hidden'; ?> data-project-panel>
+						<div class="reco-project-location__panel<?php echo 1 === $index ? ' reco-project-location__panel--reverse' : ''; ?>" id="reco-location-panel-<?php echo esc_attr( $index ); ?>" role="tabpanel" aria-labelledby="reco-location-tab-<?php echo esc_attr( $index ); ?>" <?php echo 0 === $index ? '' : 'hidden'; ?> data-project-panel>
 							<div class="reco-project-location__content">
 								<h2><?php echo esc_html( $tab_heading ?: 'Vị trí dự án ' . get_the_title() ); ?></h2>
 								<div class="reco-project-rich-text"><?php echo wp_kses_post( $render_rich_text( $tab_content ) ); ?></div>
@@ -196,17 +165,12 @@ while ( have_posts() ) :
 			</section>
 		<?php endif; ?>
 
-		<?php if ( $amenities || $amenities_gallery ) : ?>
+		<?php if ( $amenities_description || $amenities_gallery ) : ?>
 			<section class="reco-project-amenities reco-project-section" id="tien-ich-du-an">
 				<div class="reco-container">
 					<h2><?php echo esc_html( $amenities_heading ); ?></h2>
-					<?php if ( $amenities ) : ?>
-						<ul class="reco-project-amenities__list">
-							<?php foreach ( $amenities as $amenity ) :
-								$name = isset( $amenity['reco_amenity_name'] ) ? $amenity['reco_amenity_name'] : '';
-								if ( $name ) : ?><li><?php echo esc_html( $name ); ?></li><?php endif;
-							endforeach; ?>
-						</ul>
+					<?php if ( $amenities_description ) : ?>
+						<div class="reco-project-amenities__description reco-project-rich-text"><?php echo wp_kses_post( $render_rich_text( $amenities_description ) ); ?></div>
 					<?php endif; ?>
 				</div>
 				<?php if ( $amenities_gallery ) : ?>
@@ -301,7 +265,7 @@ while ( have_posts() ) :
 							$related_id        = get_the_ID();
 							$related_locations = reco_project_term_names( $related_id, 'reco_location' );
 							$related_types     = reco_project_term_names( $related_id, 'reco_project_type' );
-							$related_price     = reco_project_field( 'reco_project_price', $related_id, 'Đang cập nhật' );
+							$related_price     = reco_project_display_price( $related_id );
 							?>
 							<article class="reco-project-related-card">
 								<a class="reco-project-related-card__image" href="<?php the_permalink(); ?>">
@@ -324,7 +288,7 @@ while ( have_posts() ) :
 		?>
 
 		<div class="reco-project-mobile-cta" aria-label="Liên hệ dự án">
-			<div><span>Giá bán</span><strong><?php echo esc_html( $price ); ?></strong></div>
+			<div><span><?php echo esc_html( $price_caption ); ?></span><strong><?php echo esc_html( $price ); ?></strong></div>
 			<a href="tel:<?php echo esc_attr( $hotline_href ); ?>" aria-label="Gọi <?php echo esc_attr( $hotline ); ?>">
 				<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7.3 3.2l2.2 4.1-1.8 1.8a14.4 14.4 0 007.2 7.2l1.8-1.8 4.1 2.2-.7 3.2c-.2.8-.9 1.4-1.7 1.4C9.8 21.3 2.7 14.2 2.7 5.6c0-.8.6-1.5 1.4-1.7l3.2-.7z" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
 			</a>
