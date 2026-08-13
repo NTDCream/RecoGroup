@@ -19,7 +19,7 @@
 		priceField.find('.acf-input-append').text(isRental ? 'triệu/tháng' : 'tỷ đồng');
 		priceField.find('input[type="number"]')
 			.attr('placeholder', isRental ? 'Ví dụ: 15' : 'Ví dụ: 3.5')
-			.attr('step', isRental ? '0.1' : '0.01');
+			.attr('step', 'any');
 	};
 
 	$(document).on('change', transactionSelector, () => {
