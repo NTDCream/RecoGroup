@@ -129,25 +129,60 @@ function reco_subhero( $title, $subtitle, $image, $position = 'center' ) {
 }
 
 function reco_render_project_cards( $limit = 0 ) {
-	$projects = reco_projects();
-	if ( $limit ) {
-		$projects = array_slice( $projects, 0, $limit );
-	}
-	foreach ( $projects as $index => $project ) {
-		?>
-		<article class="reco-project-card<?php echo 0 === $index ? ' reco-project-card--featured' : ''; ?>" data-project-card data-category="<?php echo esc_attr( $project['category'] ); ?>" data-reveal>
-			<a class="reco-project-card__media" href="<?php echo esc_url( home_url( '/he-thong-san-pham/#' . sanitize_title( $project['name'] ) ) ); ?>" aria-label="Xem <?php echo esc_attr( $project['name'] ); ?>">
-				<img src="<?php echo esc_url( reco_asset( $project['image'] ) ); ?>" alt="Phối cảnh <?php echo esc_attr( $project['name'] ); ?>" width="1000" height="720" loading="lazy">
-				<span class="reco-project-card__type"><?php echo esc_html( $project['type'] ); ?></span>
-			</a>
-			<div class="reco-project-card__body">
-				<span><?php echo esc_html( $project['location'] ); ?></span>
-				<h3><?php echo esc_html( $project['name'] ); ?></h3>
-				<p><?php echo esc_html( $project['tagline'] ); ?></p>
-				<a class="reco-text-link" href="<?php echo esc_url( home_url( '/he-thong-san-pham/#' . sanitize_title( $project['name'] ) ) ); ?>">Khám phá dự án <span aria-hidden="true">↗</span></a>
-			</div>
-		</article>
-		<?php
+	$args = array(
+		'post_type'      => 'reco_project',
+		'post_status'    => 'publish',
+		'posts_per_page' => $limit > 0 ? $limit : 12,
+		'orderby'        => array( 'menu_order' => 'ASC', 'date' => 'DESC' ),
+	);
+	$projects = new WP_Query( $args );
+
+	if ( $projects->have_posts() ) {
+		$index = 0;
+		while ( $projects->have_posts() ) {
+			$projects->the_post();
+			$post_id = get_the_ID();
+
+			// Lấy category để filter (ví dụ: an-cu, thuong-mai, tam-linh)
+			// Ưu tiên taxonomy 'reco_project_category', nếu không có thì lấy 'reco_project_type'
+			$categories = wp_get_post_terms( $post_id, 'reco_project_category', array( 'fields' => 'slugs' ) );
+			if ( is_wp_error( $categories ) || empty( $categories ) ) {
+				$categories = wp_get_post_terms( $post_id, 'reco_project_type', array( 'fields' => 'slugs' ) );
+			}
+			$category = ( ! is_wp_error( $categories ) && ! empty( $categories ) ) ? $categories[0] : 'an-cu';
+
+			$types = reco_project_term_names( $post_id, 'reco_project_type' );
+			$type  = ! empty( $types ) ? implode( ', ', $types ) : 'Dự án';
+
+			$locations = reco_project_term_names( $post_id, 'reco_location' );
+			$location  = ! empty( $locations ) ? implode( ', ', $locations ) : 'Đang cập nhật vị trí';
+
+			$tagline = reco_project_field( 'reco_project_tagline', $post_id );
+			
+			$image_url = get_the_post_thumbnail_url( $post_id, 'large' );
+			if ( ! $image_url ) {
+				$image_url = reco_asset( 'images/project-celestine.jpg' ); // Fallback image
+			}
+			
+			$name = get_the_title();
+			$link = get_permalink();
+			?>
+			<article class="reco-project-card<?php echo 0 === $index ? ' reco-project-card--featured' : ''; ?>" data-project-card data-category="<?php echo esc_attr( $category ); ?>" data-reveal>
+				<a class="reco-project-card__media" href="<?php echo esc_url( $link ); ?>" aria-label="Xem <?php echo esc_attr( $name ); ?>">
+					<img src="<?php echo esc_url( $image_url ); ?>" alt="Phối cảnh <?php echo esc_attr( $name ); ?>" width="1000" height="720" loading="lazy">
+					<span class="reco-project-card__type"><?php echo esc_html( $type ); ?></span>
+				</a>
+				<div class="reco-project-card__body">
+					<span><?php echo esc_html( $location ); ?></span>
+					<h3><?php echo esc_html( $name ); ?></h3>
+					<p><?php echo esc_html( $tagline ); ?></p>
+					<a class="reco-text-link" href="<?php echo esc_url( $link ); ?>">Khám phá dự án <span aria-hidden="true">↗</span></a>
+				</div>
+			</article>
+			<?php
+			$index++;
+		}
+		wp_reset_postdata();
 	}
 }
 
@@ -579,7 +614,7 @@ function reco_render_home() {
 		<div class="reco-container reco-intro__grid">
 			<div class="reco-intro__copy" data-reveal>
 				<span class="reco-eyebrow">Giới thiệu</span>
-				<h2>Nền tảng vững vàng.<br><em>Tư vấn có chiều sâu.</em></h2>
+				<h2>Nền tảng vững vàng. <em>Tư vấn có chiều sâu.</em></h2>
 				<p class="reco-lead">Nhà Ở Ngay RECO kế thừa uy tín, kinh nghiệm và năng lực vận hành từ hệ thống Nhà Ở Ngay thuộc Đất Xanh Miền Bắc.</p>
 				<p>Chúng tôi kết nối khách hàng với những sản phẩm phù hợp bằng thông tin rõ ràng, đội ngũ am hiểu pháp lý – tài chính và dịch vụ đồng hành xuyên suốt.</p>
 				<a class="reco-text-link" href="<?php echo esc_url( home_url( '/gioi-thieu/' ) ); ?>">Khám phá câu chuyện RECO <span aria-hidden="true">→</span></a>
@@ -627,7 +662,7 @@ function reco_render_home() {
 			</div>
 			<div class="reco-culture-home__copy" data-reveal>
 				<span class="reco-eyebrow">Hoạt động nội bộ</span>
-				<h2>Một tập thể cùng<br><em>hướng về giá trị thật.</em></h2>
+				<h2>Một tập thể cùng <em>hướng về giá trị thật.</em></h2>
 				<p>Văn hóa RECO được nuôi dưỡng bằng tinh thần học hỏi, hợp tác và chủ động. Mỗi hoạt động nội bộ là một điểm chạm để đội ngũ hiểu nhau hơn và phục vụ khách hàng tốt hơn.</p>
 				<a class="reco-text-link" href="<?php echo esc_url( home_url( '/noi-bo/' ) ); ?>">Khám phá đời sống RECO <span aria-hidden="true">→</span></a>
 			</div>
@@ -674,7 +709,7 @@ function reco_render_about() {
 	?>
 	<section class="reco-section">
 		<div class="reco-container reco-story">
-			<div class="reco-story__title" data-reveal><span class="reco-eyebrow">Câu chuyện của chúng tôi</span><h2>Xa hơn một giao dịch,<br><em>là một hành trình đồng hành.</em></h2></div>
+			<div class="reco-story__title" data-reveal><span class="reco-eyebrow">Câu chuyện của chúng tôi</span><h2>Xa hơn một giao dịch, <em>là một hành trình đồng hành.</em></h2></div>
 			<div class="reco-story__copy" data-reveal>
 				<p class="reco-lead">Nhà Ở Ngay RECO ra đời với mong muốn giúp quá trình tìm kiếm và sở hữu bất động sản trở nên rõ ràng, tin cậy và thuận tiện hơn.</p>
 				<p>Là đơn vị đầu tiên phát triển từ hệ thống Nhà Ở Ngay thuộc Đất Xanh Miền Bắc, chúng tôi kế thừa kinh nghiệm thị trường, năng lực vận hành và nguồn sản phẩm được tuyển chọn.</p>
@@ -738,7 +773,7 @@ function reco_render_about() {
 		</div>
 	</section>
 
-	<section class="reco-section reco-leadership">
+	<section class="reco-section reco-section--blue reco-leadership">
 		<div class="reco-container">
 			<?php reco_section_heading( 'Đội ngũ lãnh đạo', 'Kết hợp tầm nhìn chiến lược<br>và <em>năng lực vận hành.</em>', 'Kinh nghiệm quản trị, pháp lý và phát triển con người tạo nên nền tảng vững chắc cho RECO.' ); ?>
 			<div class="reco-leader-grid">
