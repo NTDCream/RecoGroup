@@ -226,3 +226,9 @@ function reco_add_schema() {
 	printf( '<script type="application/ld+json">%s</script>', wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
 }
 add_action( 'wp_head', 'reco_add_schema', 5 );
+
+function reco_add_favicon() {
+	echo '<link rel="shortcut icon" href="' . esc_url( get_stylesheet_directory_uri() . '/favicon.png' ) . '" type="image/png" />' . "\n";
+}
+add_action( 'wp_head', 'reco_add_favicon' );
+add_action( 'admin_head', 'reco_add_favicon' );

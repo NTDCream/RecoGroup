@@ -25,8 +25,9 @@
 		</div>
 		<div class="reco-footer__contact">
 			<h3>Kết nối với chúng tôi</h3>
-			<a class="reco-footer__phone" href="tel:0934524445">0934 524 445</a>
 			<p>Số 19–21 phố Vũ Trọng Phụng, phường Thanh Xuân Trung, quận Thanh Xuân, TP. Hà Nội.</p>
+			<p style="margin-bottom: 5px;">Hotline: <a href="tel:0934524445" style="color: inherit; font-weight: 700;">0934.524.445</a></p>
+			<p style="margin-bottom: 20px;">Email: <a href="mailto:cskh@nhaongayreco.vn" style="color: inherit;">cskh@nhaongayreco.vn</a></p>
 			<a href="<?php echo esc_url(home_url('/lien-he/#form-lien-he')); ?>">Gửi yêu cầu trực tuyến</a>
 		</div>
 	</div>
@@ -62,7 +63,7 @@
 			<path d="M4 20h16M6 20V9l6-4 6 4v11M9 12h2v2H9zm4 0h2v2h-2zM9 16h2v4H9zm4 0h2v4h-2z" fill="none"
 				stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
 		</svg>
-		<span>Sản phẩm</span>
+		<span>Dự án</span>
 	</a>
 	<a class="reco-mobile-dock__call" href="tel:0934524445">
 		<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">

@@ -1,2 +1,6 @@
 # Local source content and large media files
 /Nội dung web/
+
+# Ignore WPvivid plugin and backups
+/app/public/wp-content/plugins/wpvivid-backuprestore/
+/app/public/wp-content/wpvividbackups/

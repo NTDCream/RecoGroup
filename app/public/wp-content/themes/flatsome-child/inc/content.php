@@ -9,7 +9,7 @@ function reco_menu_fallback() {
 	$items = array(
 		'/'                       => 'Trang chủ',
 		'/gioi-thieu/'            => 'Giới thiệu',
-		'/he-thong-san-pham/'     => 'Hệ thống sản phẩm',
+		'/he-thong-san-pham/'     => 'Dự án',
 		'/tin-tuc/'               => 'Tin tức',
 		'/noi-bo/'                => 'Nội bộ',
 		'/tuyen-dung/'            => 'Tuyển dụng',
@@ -639,7 +639,7 @@ function reco_render_home() {
 				<div><p>Đa dạng từ căn hộ cao cấp, nhà phố thương mại đến bất động sản tâm linh — mỗi sản phẩm đều được tiếp cận với tiêu chí rõ ràng về giá trị và pháp lý.</p><a class="reco-text-link reco-text-link--light" href="<?php echo esc_url( home_url( '/he-thong-san-pham/' ) ); ?>">Xem toàn bộ sản phẩm <span aria-hidden="true">→</span></a></div>
 			</div>
 			<div class="reco-project-grid">
-				<?php reco_render_project_cards(); ?>
+				<?php reco_render_project_cards( 4 ); ?>
 			</div>
 		</div>
 	</section>
@@ -803,25 +803,7 @@ function reco_render_products() {
 		</div>
 	</section>
 
-	<section class="reco-section reco-section--soft reco-project-detail" id="celestine-westlake">
-		<div class="reco-container reco-project-detail__grid">
-			<div class="reco-project-detail__media" data-reveal><img src="<?php echo esc_url( reco_asset( 'images/project-celestine.jpg' ) ); ?>" alt="Toàn cảnh Celestine Westlake bên Hồ Tây" width="1100" height="780" loading="lazy"><span>Dự kiến bàn giao từ năm 2027</span></div>
-			<div class="reco-project-detail__content" data-reveal>
-				<span class="reco-eyebrow">Dự án nổi bật</span>
-				<h2>Celestine Westlake</h2>
-				<p class="reco-lead">Tổ hợp căn hộ cao cấp tại lô CHC1–D6, số 300 Võ Chí Công, phường Tây Hồ, Hà Nội.</p>
-				<dl>
-					<div><dt>Chủ đầu tư</dt><dd>Tập đoàn VINAENCO</dd></div>
-					<div><dt>Quy mô</dt><dd>2 tháp cao 23 tầng · 216 căn hộ</dd></div>
-					<div><dt>Diện tích đất</dt><dd>4.338 m²</dd></div>
-					<div><dt>Loại hình</dt><dd>1–3PN, Duplex, Dual Key, Penthouse</dd></div>
-					<div><dt>Pháp lý</dt><dd>Sở hữu lâu dài, đầy đủ giấy phép</dd></div>
-					<div><dt>Điểm nổi bật</dt><dd>238 chỗ đỗ ô tô</dd></div>
-				</dl>
-				<a class="reco-button reco-button--orange" href="<?php echo esc_url( home_url( '/lien-he/?du-an=celestine' ) ); ?>">Nhận thông tin dự án <span aria-hidden="true">→</span></a>
-			</div>
-		</div>
-	</section>
+
 
 	<section class="reco-section reco-property-request">
 		<div class="reco-container reco-property-request__inner" data-reveal>
