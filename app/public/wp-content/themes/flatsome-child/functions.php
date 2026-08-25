@@ -7,6 +7,7 @@ defined( 'ABSPATH' ) || exit;
 
 require_once get_stylesheet_directory() . '/inc/content.php';
 require_once get_stylesheet_directory() . '/inc/project-fields.php';
+require_once get_stylesheet_directory() . '/inc/job-fields.php';
 
 function reco_asset( $path ) {
 	return trailingslashit( get_stylesheet_directory_uri() ) . 'assets/' . ltrim( $path, '/' );
@@ -80,6 +81,33 @@ function reco_register_lead_type() {
 	);
 }
 add_action( 'init', 'reco_register_lead_type' );
+
+function reco_register_job_type() {
+	register_post_type(
+		'reco_job',
+		array(
+			'labels'       => array(
+				'name'               => 'Vị trí tuyển dụng',
+				'singular_name'      => 'Vị trí tuyển dụng',
+				'add_new'            => 'Thêm vị trí',
+				'add_new_item'       => 'Thêm vị trí mới',
+				'edit_item'          => 'Sửa vị trí',
+				'new_item'           => 'Vị trí mới',
+				'view_item'          => 'Xem vị trí',
+				'search_items'       => 'Tìm vị trí',
+				'not_found'          => 'Không tìm thấy vị trí nào',
+				'not_found_in_trash' => 'Không có vị trí nào trong thùng rác',
+			),
+			'public'       => false,
+			'show_ui'      => true,
+			'show_in_menu' => true,
+			'menu_icon'    => 'dashicons-megaphone',
+			'supports'     => array( 'title' ),
+			'has_archive'  => false,
+		)
+	);
+}
+add_action( 'init', 'reco_register_job_type' );
 
 function reco_install_site_content() {
 	if ( get_option( 'reco_site_version' ) === '1.0.0' ) {

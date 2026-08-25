@@ -891,21 +891,37 @@ function reco_render_careers() {
 			<div class="reco-section-head reco-section-head--split" data-reveal><div><span class="reco-eyebrow reco-eyebrow--light">Vị trí đang tuyển</span><h2>Tìm nơi bạn có thể<br>tạo nên <em>dấu ấn.</em></h2></div><p>Mỗi vị trí đều có người hướng dẫn, mục tiêu rõ ràng và không gian để bạn phát huy thế mạnh riêng.</p></div>
 			<div class="reco-job-list">
 				<?php
-				$jobs = array(
-					array( 'Bộ phận Kinh doanh', 'Chuyên viên tư vấn bất động sản', 'Toàn thời gian · Hà Nội', 'Tìm kiếm và chăm sóc khách hàng, tư vấn sản phẩm phù hợp, phối hợp hoàn thiện hồ sơ giao dịch. Ưu tiên ứng viên chủ động, giao tiếp tốt; chưa có kinh nghiệm sẽ được đào tạo.' ),
-					array( 'Bộ phận HCNS', 'Chuyên viên Nhân sự', 'Toàn thời gian · Hà Nội', 'Phụ trách tuyển dụng, hội nhập và hoạt động gắn kết. Cần khả năng tổ chức công việc, giao tiếp rõ ràng và tinh thần đồng hành cùng nhân sự.' ),
-					array( 'Bộ phận Marketing', 'Chuyên viên Marketing dự án', 'Toàn thời gian · Hà Nội', 'Triển khai nội dung, truyền thông và hỗ trợ bán hàng cho danh mục dự án. Ưu tiên tư duy nội dung, khả năng phối hợp và am hiểu nền tảng số.' ),
-					array( 'Bộ phận Kế toán', 'Chuyên viên Kế toán', 'Toàn thời gian · Hà Nội', 'Theo dõi chứng từ, đối soát doanh thu – chi phí và hỗ trợ báo cáo nội bộ. Yêu cầu cẩn trọng, chính xác và tuân thủ quy trình.' ),
-					array( 'Bộ phận Sales Admin', 'Chuyên viên Sales Admin', 'Toàn thời gian · Hà Nội', 'Quản lý dữ liệu sản phẩm, hồ sơ giao dịch và hỗ trợ đội ngũ kinh doanh. Cần khả năng sắp xếp, phản hồi nhanh và làm việc có hệ thống.' ),
+				$job_query = new WP_Query(
+					array(
+						'post_type'      => 'reco_job',
+						'posts_per_page' => -1,
+						'post_status'    => 'publish',
+						'orderby'        => 'menu_order date',
+						'order'          => 'ASC',
+					)
 				);
-				foreach ( $jobs as $index => $job ) {
-					?>
+
+				if ( $job_query->have_posts() ) :
+					$index = 0;
+					while ( $job_query->have_posts() ) :
+						$job_query->the_post();
+						$department  = get_field( 'reco_job_department' );
+						$branch      = get_field( 'reco_job_branch' );
+						$description = get_field( 'reco_job_description' );
+						?>
 					<details class="reco-job" <?php echo 0 === $index ? 'open' : ''; ?> data-reveal>
-						<summary><span class="reco-job__number"><?php echo esc_html( sprintf( '%02d', $index + 1 ) ); ?></span><span class="reco-job__title"><small><?php echo esc_html( $job[0] ); ?></small><strong><?php echo esc_html( $job[1] ); ?></strong></span><span class="reco-job__meta"><?php echo esc_html( $job[2] ); ?></span><span class="reco-job__toggle" aria-hidden="true">+</span></summary>
-						<div class="reco-job__body"><p><?php echo esc_html( $job[3] ); ?></p><a class="reco-button reco-button--white" href="<?php echo esc_url( add_query_arg( array( 'nhu-cau' => 'tuyen-dung', 'vi-tri' => $job[1] ), home_url( '/lien-he/' ) ) ); ?>#form-lien-he">Ứng tuyển vị trí này <span aria-hidden="true">→</span></a></div>
+						<summary><span class="reco-job__number"><?php echo esc_html( sprintf( '%02d', $index + 1 ) ); ?></span><span class="reco-job__title"><small><?php echo esc_html( $department ); ?></small><strong><?php the_title(); ?></strong></span><span class="reco-job__meta">Toàn thời gian &middot; <?php echo esc_html( $branch ); ?></span><span class="reco-job__toggle" aria-hidden="true">+</span></summary>
+						<div class="reco-job__body"><?php echo wp_kses_post( $description ); ?><a class="reco-button reco-button--white" href="<?php echo esc_url( add_query_arg( array( 'nhu-cau' => 'tuyen-dung', 'vi-tri' => get_the_title() ), home_url( '/lien-he/' ) ) ); ?>#form-lien-he">Ứng tuyển vị trí này <span aria-hidden="true">→</span></a></div>
 					</details>
+						<?php
+						++$index;
+					endwhile;
+					wp_reset_postdata();
+				else :
+					?>
+					<p class="reco-jobs__empty">Hiện tại chưa có vị trí tuyển dụng mới. Vui lòng quay lại sau.</p>
 					<?php
-				}
+				endif;
 				?>
 			</div>
 		</div>
