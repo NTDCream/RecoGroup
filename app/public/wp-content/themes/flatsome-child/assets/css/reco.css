@@ -1949,77 +1949,165 @@ body.reco-menu-open {
 }
 
 .reco-job-list {
-	border-top: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-.reco-job {
-	border-bottom: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-.reco-job summary {
 	display: grid;
-	min-height: 118px;
-	grid-template-columns: 70px minmax(0, 1fr) 230px 48px;
-	gap: 20px;
-	align-items: center;
-	color: var(--reco-white);
-	cursor: pointer;
-	list-style: none;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 30px;
+	padding-top: 20px;
 }
 
-.reco-job summary::-webkit-details-marker {
-	display: none;
+.reco-job-card {
+	background: #fff;
+	border-radius: 8px;
+	padding: 30px;
+	color: var(--reco-blue-deep);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	display: flex;
+	flex-direction: column;
 }
 
-.reco-job__number {
-	color: var(--reco-orange);
-	font-size: 0.76rem;
+.reco-job-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.reco-jobs .reco-job-card__title {
+	font-size: 1.25rem;
+	margin-bottom: 20px;
+	color: var(--reco-blue-deep);
 	font-weight: 800;
 }
 
-.reco-job__title small {
-	display: block;
-	margin-bottom: 5px;
-	color: rgba(255, 255, 255, 0.54);
-	font-size: 0.69rem;
+.reco-job-card__badge {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 4px;
+	font-size: 0.75rem;
 	font-weight: 700;
-	text-transform: uppercase;
+	color: #fff;
+	margin-bottom: 15px;
+	align-self: flex-start;
+}
+.reco-job-card__badge.badge-orange { background-color: #e67e22; }
+.reco-job-card__badge.badge-blue { background-color: #0e263b; }
+.reco-job-card__badge.badge-green { background-color: #27ae60; }
+
+.reco-job-card__meta {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 20px 0;
+	font-size: 0.95rem;
+	color: rgba(14, 38, 59, 0.7);
 }
 
-.reco-job__title strong {
-	display: block;
-	font-size: clamp(1.2rem, 2vw, 1.7rem);
-}
-
-.reco-job__meta {
-	color: rgba(255, 255, 255, 0.66);
-	font-size: 0.78rem;
-}
-
-.reco-job__toggle {
+.reco-job-card__meta li {
 	display: flex;
-	width: 42px;
-	height: 42px;
 	align-items: center;
-	justify-content: center;
-	border: 1px solid rgba(255, 255, 255, 0.4);
-	border-radius: 50%;
-	font-size: 1.3rem;
-	transition: transform 220ms ease, background-color 220ms ease;
+	gap: 10px;
+	margin-bottom: 8px;
 }
 
-.reco-job[open] .reco-job__toggle {
-	background: var(--reco-orange);
+.reco-job-card__meta svg {
+	color: var(--reco-orange);
+}
+
+.reco-job-card__excerpt {
+	color: rgba(14, 38, 59, 0.7);
+	margin-bottom: 25px;
+	flex-grow: 1;
+}
+
+.reco-job-card__button {
+	background: none;
+	border: none;
+	color: var(--reco-orange);
+	font-weight: 700;
+	font-size: 1rem;
+	padding: 0;
+	cursor: pointer;
+	text-align: left;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	transition: opacity 0.2s;
+}
+
+.reco-job-card__button:hover {
+	opacity: 0.8;
+}
+
+/* Modal */
+.reco-job-modal {
+	padding: 0;
+	border: none;
+	border-radius: 12px;
+	max-width: 700px;
+	width: 90%;
+	background: #fff;
 	color: var(--reco-blue-deep);
-	transform: rotate(45deg);
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-.reco-job__body {
-	padding: 4px 0 34px 90px;
+.reco-job-modal::backdrop {
+	background: rgba(14, 38, 59, 0.7);
+	backdrop-filter: blur(4px);
 }
 
-.reco-job__body p {
-	margin-bottom: 24px;
+.reco-job-modal__inner {
+	padding: 40px;
+	position: relative;
+}
+
+.reco-job-modal__close {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	background: none;
+	border: none;
+	font-size: 2rem;
+	line-height: 1;
+	color: rgba(14, 38, 59, 0.5);
+	cursor: pointer;
+	transition: color 0.2s;
+}
+
+.reco-job-modal__close:hover {
+	color: var(--reco-blue-deep);
+}
+
+.reco-job-modal__title {
+	font-size: 1.8rem;
+	margin-bottom: 15px;
+	padding-right: 30px;
+	color: var(--reco-blue-deep);
+}
+
+.reco-job-modal__meta {
+	display: flex;
+	gap: 20px;
+	margin-bottom: 30px;
+	color: rgba(14, 38, 59, 0.7);
+	font-weight: 500;
+}
+
+.reco-job-modal__content {
+	line-height: 1.7;
+	margin-bottom: 40px;
+	color: rgba(14, 38, 59, 0.8);
+}
+
+.reco-job-modal__content ul {
+	padding-left: 20px;
+	margin-bottom: 20px;
+}
+
+.reco-job-modal__content li {
+	margin-bottom: 8px;
+}
+
+.reco-job-modal__actions {
+	display: flex;
+	gap: 15px;
 }
 
 /* Contact */
@@ -2862,22 +2950,22 @@ body.reco-menu-open {
 		grid-column: 1 !important;
 	}
 
-	.reco-job summary {
-		min-height: 110px;
-		grid-template-columns: 38px minmax(0, 1fr) 42px;
-		gap: 12px;
-	}
-
-	.reco-job__meta {
-		display: none;
-	}
-
-	.reco-job__body {
-		padding: 0 0 30px 50px;
+	.reco-job-list {
+		grid-template-columns: repeat(2, 1fr);
 	}
 
 	.reco-contact-page__form {
 		padding: 30px 22px;
+	}
+
+	.reco-contact-form {
+		gap: 20px;
+	}
+}
+
+@media (max-width: 575px) {
+	.reco-job-list {
+		grid-template-columns: 1fr;
 	}
 
 	.reco-contact-form {

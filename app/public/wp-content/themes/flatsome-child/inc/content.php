@@ -1117,18 +1117,32 @@ function reco_render_careers()
 					while ($job_query->have_posts()):
 						$job_query->the_post();
 						$branch = get_field('reco_job_branch');
+						$department = get_field('reco_job_department');
+						$experience = get_field('reco_job_experience');
 						$description = get_field('reco_job_description');
+						$excerpt = wp_trim_words(wp_strip_all_tags($description), 22, '...');
+						$modal_id = 'reco-modal-' . get_the_ID();
+						
+						// Determine badge class
+						$badge_class = 'badge-orange';
+						if ($department === 'Quản lý') $badge_class = 'badge-blue';
+						if ($department === 'Marketing') $badge_class = 'badge-green';
 						?>
-						<details class="reco-job" <?php echo 0 === $index ? 'open' : ''; ?> data-reveal>
-							<summary><span class="reco-job__number"><?php echo esc_html(sprintf('%02d', $index + 1)); ?></span><span
-									class="reco-job__title"><strong><?php the_title(); ?></strong></span><span
-									class="reco-job__meta">Toàn thời gian &middot; <?php echo esc_html($branch); ?></span><span
-									class="reco-job__toggle" aria-hidden="true">+</span></summary>
-							<div class="reco-job__body"><?php echo wp_kses_post($description); ?><a
-									class="reco-button reco-button--white"
-									href="<?php echo esc_url(add_query_arg(array('nhu-cau' => 'tuyen-dung', 'vi-tri' => get_the_title()), home_url('/lien-he/'))); ?>#form-lien-he">Ứng
-									tuyển vị trí này <span aria-hidden="true">→</span></a></div>
-						</details>
+						<article class="reco-job-card" data-reveal>
+							<?php if ($department): ?>
+								<span class="reco-job-card__badge <?php echo esc_attr($badge_class); ?>"><?php echo esc_html($department); ?></span>
+							<?php endif; ?>
+							<h3 class="reco-job-card__title"><?php the_title(); ?></h3>
+							<ul class="reco-job-card__meta">
+								<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> <?php echo esc_html($branch ? $branch : 'Hà Nội'); ?></li>
+								<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Toàn thời gian</li>
+								<?php if ($experience): ?>
+								<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> <?php echo esc_html($experience); ?></li>
+								<?php endif; ?>
+							</ul>
+							<p class="reco-job-card__excerpt"><?php echo esc_html($excerpt); ?></p>
+							<a class="reco-job-card__button" href="<?php echo esc_url(add_query_arg(array('nhu-cau' => 'tuyen-dung', 'vi-tri' => get_the_title()), home_url('/lien-he/'))); ?>#form-lien-he">ỨNG TUYỂN &rarr;</a>
+						</article>
 						<?php
 						++$index;
 					endwhile;
@@ -1142,6 +1156,7 @@ function reco_render_careers()
 			</div>
 		</div>
 	</section>
+
 	<?php
 }
 
