@@ -79,10 +79,11 @@
 
 		const revealItems = document.querySelectorAll('[data-reveal]');
 		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		let revealObserver = null;
 		if (reducedMotion || !('IntersectionObserver' in window)) {
 			revealItems.forEach((item) => item.classList.add('is-visible'));
 		} else {
-			const revealObserver = new IntersectionObserver((entries, observer) => {
+			revealObserver = new IntersectionObserver((entries, observer) => {
 				entries.forEach((entry) => {
 					if (!entry.isIntersecting) return;
 					entry.target.classList.add('is-visible');
@@ -249,5 +250,53 @@
 
 			showSlide(0);
 		});
+
+		const loadMoreBtn = document.getElementById('reco-news-loadmore-btn');
+		const newsListContainer = document.getElementById('reco-news-list-container');
+		if (loadMoreBtn && newsListContainer && typeof recoAjax !== 'undefined') {
+			loadMoreBtn.addEventListener('click', () => {
+				let page = parseInt(loadMoreBtn.dataset.page || 1, 10);
+				page++;
+				const originalText = loadMoreBtn.innerHTML;
+				loadMoreBtn.textContent = 'Đang tải...';
+				loadMoreBtn.disabled = true;
+
+				const formData = new FormData();
+				formData.append('action', 'reco_load_more_news');
+				formData.append('nonce', recoAjax.nonce);
+				formData.append('page', page);
+
+				fetch(recoAjax.ajaxurl, {
+					method: 'POST',
+					body: formData
+				})
+				.then(response => response.json())
+				.then(result => {
+					if (result.success) {
+						loadMoreBtn.dataset.page = page;
+						newsListContainer.insertAdjacentHTML('beforeend', result.data.html);
+						if (!result.data.has_more) {
+							loadMoreBtn.parentElement.remove();
+						} else {
+							loadMoreBtn.innerHTML = originalText;
+							loadMoreBtn.disabled = false;
+						}
+						const newReveals = newsListContainer.querySelectorAll('.reco-news-list-item:not(.is-visible)');
+						if (revealObserver && newReveals.length) {
+							newReveals.forEach(item => revealObserver.observe(item));
+						} else {
+							newReveals.forEach(item => item.classList.add('is-visible'));
+						}
+					} else {
+						loadMoreBtn.innerHTML = originalText;
+						loadMoreBtn.disabled = false;
+					}
+				})
+				.catch(err => {
+					loadMoreBtn.innerHTML = originalText;
+					loadMoreBtn.disabled = false;
+				});
+			});
+		}
 	});
 })();

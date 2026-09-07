@@ -43,6 +43,10 @@ function reco_enqueue_assets()
 	);
 	wp_enqueue_style('reco-theme', reco_asset('css/reco.css'), array('reco-fonts'), $style_version);
 	wp_enqueue_script('reco-theme', reco_asset('js/reco.js'), array(), $script_version, true);
+	wp_localize_script('reco-theme', 'recoAjax', array(
+		'ajaxurl' => admin_url('admin-ajax.php'),
+		'nonce' => wp_create_nonce('reco_load_more_news')
+	));
 }
 add_action('wp_enqueue_scripts', 'reco_enqueue_assets', 90);
 
@@ -190,7 +194,6 @@ function reco_install_site_content()
 		set_theme_mod('nav_menu_locations', $locations);
 	}
 
-	update_option('reco_site_version', '1.0.0');
 	flush_rewrite_rules(false);
 }
 add_action('init', 'reco_install_site_content', 30);
@@ -272,3 +275,25 @@ function reco_add_favicon()
 }
 add_action('wp_head', 'reco_add_favicon');
 add_action('admin_head', 'reco_add_favicon');
+
+add_action('wp_ajax_reco_load_more_news', 'reco_ajax_load_more_news');
+add_action('wp_ajax_nopriv_reco_load_more_news', 'reco_ajax_load_more_news');
+function reco_ajax_load_more_news() {
+	check_ajax_referer('reco_load_more_news', 'nonce');
+	$paged = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+	$args = array(
+		'post_type' => 'post',
+		'post_status' => 'publish',
+		'posts_per_page' => 10,
+		'paged' => $paged,
+	);
+	$query = new WP_Query($args);
+	if ($query->have_posts()) {
+		ob_start();
+		reco_render_news_list_items($query);
+		wp_send_json_success(array('html' => ob_get_clean(), 'has_more' => $query->max_num_pages > $paged));
+	} else {
+		wp_send_json_error('No posts found');
+	}
+	wp_die();
+}

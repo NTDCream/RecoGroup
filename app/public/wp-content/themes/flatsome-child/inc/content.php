@@ -663,6 +663,58 @@ function reco_news_link()
 	return home_url('/lien-he/');
 }
 
+function reco_render_news_list_items($query)
+{
+	while ($query->have_posts()) {
+		$query->the_post();
+		$categories = get_the_category();
+		$category_name = !empty($categories) ? $categories[0]->name : 'Tin tức';
+		$views = get_post_meta(get_the_ID(), 'post_views_count', true);
+		$views = $views ? $views : rand(100, 2000);
+		$thumbnail_url = get_the_post_thumbnail_url() ? get_the_post_thumbnail_url() : reco_asset('images/news-placeholder.jpg');
+		?>
+		<article class="reco-news-list-item" data-reveal>
+			<a class="reco-news-list-item__image" href="<?php echo esc_url(get_permalink()); ?>"
+				aria-label="<?php echo esc_attr(get_the_title()); ?>">
+				<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" width="240"
+					height="160" loading="lazy">
+			</a>
+			<div class="reco-news-list-item__body">
+				<h2><a href="<?php echo esc_url(get_permalink()); ?>"><?php echo esc_html(get_the_title()); ?></a></h2>
+				<div class="reco-news-list-item__meta">
+					<time datetime="<?php echo esc_attr(get_the_date('c')); ?>">
+						<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+							stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="12" cy="12" r="10"></circle>
+							<polyline points="12 6 12 12 16 14"></polyline>
+						</svg>
+						<?php echo esc_html(get_the_date('d/m/Y H:i')); ?>
+					</time>
+					<span class="reco-news-list-item__author">
+						<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+							stroke-linecap="round" stroke-linejoin="round">
+							<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+							<circle cx="12" cy="7" r="4"></circle>
+						</svg>
+						<?php echo esc_html(get_the_author()); ?>
+					</span>
+					<span class="reco-news-list-item__views">
+						<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+							stroke-linecap="round" stroke-linejoin="round">
+							<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+							<circle cx="12" cy="12" r="3"></circle>
+						</svg>
+						<?php echo esc_html($views); ?>
+					</span>
+				</div>
+				<p class="reco-news-list-item__excerpt"><?php echo wp_trim_words(get_the_excerpt(), 24); ?></p>
+			</div>
+		</article>
+		<?php
+	}
+	wp_reset_postdata();
+}
+
 function reco_render_news_feed_cards($items)
 {
 	foreach ($items as $item) {
@@ -670,8 +722,8 @@ function reco_render_news_feed_cards($items)
 		<article class="reco-news-feed-card" data-reveal>
 			<a class="reco-news-feed-card__image" href="<?php echo esc_url(reco_news_link()); ?>"
 				aria-label="<?php echo esc_attr($item['title']); ?>">
-				<img src="<?php echo esc_url(reco_asset($item['image'])); ?>"
-					alt="<?php echo esc_attr($item['title']); ?>" width="640" height="480" loading="lazy">
+				<img src="<?php echo esc_url(reco_asset($item['image'])); ?>" alt="<?php echo esc_attr($item['title']); ?>"
+					width="640" height="480" loading="lazy">
 			</a>
 			<div class="reco-news-feed-card__body">
 				<span class="reco-news-feed-card__category"><?php echo esc_html($item['category']); ?></span>
@@ -1059,38 +1111,164 @@ function reco_render_news()
 			<div class="reco-news-page__layout">
 				<main class="reco-news-page__main" id="tin-moi">
 					<div class="reco-news-highlights" aria-label="Tin nổi bật">
-						<article class="reco-news-highlight reco-news-highlight--primary" data-reveal>
-							<a href="<?php echo esc_url(reco_news_link()); ?>" class="reco-news-highlight__image"
-								aria-label="<?php echo esc_attr($news[0]['title']); ?>">
-								<img src="<?php echo esc_url(reco_asset($news[0]['image'])); ?>"
-									alt="<?php echo esc_attr($news[0]['title']); ?>" width="1000" height="670" loading="eager">
-							</a>
-							<div class="reco-news-highlight__content">
-								<time datetime="<?php echo esc_attr($news[0]['datetime']); ?>"><span><?php echo esc_html(substr($news[0]['date'], 0, 2)); ?></span><?php echo esc_html(substr($news[0]['date'], 3)); ?></time>
-								<h2><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($news[0]['title']); ?></a></h2>
-							</div>
-						</article>
+						<?php
+						$hl_args = array(
+							'post_type' => 'post',
+							'post_status' => 'publish',
+							'posts_per_page' => 3,
+						);
+						$hl_query = new WP_Query($hl_args);
+						$hl_posts = array();
+						if ($hl_query->have_posts()) {
+							while ($hl_query->have_posts()) {
+								$hl_query->the_post();
+								$hl_posts[] = array(
+									'title' => get_the_title(),
+									'link' => get_permalink(),
+									'image' => get_the_post_thumbnail_url() ?: reco_asset('images/news-placeholder.jpg'),
+									'date_day' => get_the_date('d/m'),
+									'date_year' => get_the_date('Y'),
+									'datetime' => get_the_date('c'),
+								);
+							}
+							wp_reset_postdata();
+						}
+
+						if (count($hl_posts) < 3) {
+							$needed = 3 - count($hl_posts);
+							foreach (array_slice($news, count($hl_posts), $needed) as $item) {
+								$hl_posts[] = array(
+									'title' => $item['title'],
+									'link' => reco_news_link(),
+									'image' => reco_asset($item['image']),
+									'date_day' => substr($item['date'], 0, 5),
+									'date_year' => substr($item['date'], 6),
+									'datetime' => $item['datetime'],
+								);
+							}
+						}
+
+						if (!empty($hl_posts[0])):
+							?>
+							<article class="reco-news-highlight reco-news-highlight--primary" data-reveal>
+								<a href="<?php echo esc_url($hl_posts[0]['link']); ?>" class="reco-news-highlight__image"
+									aria-label="<?php echo esc_attr($hl_posts[0]['title']); ?>">
+									<img src="<?php echo esc_url($hl_posts[0]['image']); ?>"
+										alt="<?php echo esc_attr($hl_posts[0]['title']); ?>" width="1000" height="670"
+										loading="eager">
+								</a>
+								<div class="reco-news-highlight__content">
+									<time datetime="<?php echo esc_attr($hl_posts[0]['datetime']); ?>">
+										<span><?php echo esc_html($hl_posts[0]['date_day']); ?></span>
+										<small><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"
+												stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+												<circle cx="12" cy="12" r="10"></circle>
+												<polyline points="12 6 12 12 16 14"></polyline>
+											</svg> <?php echo esc_html($hl_posts[0]['date_year']); ?></small>
+									</time>
+									<h2><a
+											href="<?php echo esc_url($hl_posts[0]['link']); ?>"><?php echo esc_html($hl_posts[0]['title']); ?></a>
+									</h2>
+								</div>
+							</article>
+						<?php endif; ?>
 
 						<div class="reco-news-highlights__stack">
-							<?php foreach (array_slice($news, 1, 2) as $item): ?>
+							<?php foreach (array_slice($hl_posts, 1, 2) as $item): ?>
 								<article class="reco-news-highlight reco-news-highlight--secondary" data-reveal>
-									<a href="<?php echo esc_url(reco_news_link()); ?>" class="reco-news-highlight__image"
+									<a href="<?php echo esc_url($item['link']); ?>" class="reco-news-highlight__image"
 										aria-label="<?php echo esc_attr($item['title']); ?>">
-										<img src="<?php echo esc_url(reco_asset($item['image'])); ?>"
-											alt="<?php echo esc_attr($item['title']); ?>" width="600" height="400" loading="lazy">
+										<img src="<?php echo esc_url($item['image']); ?>"
+											alt="<?php echo esc_attr($item['title']); ?>" width="600" height="400"
+											loading="lazy">
 									</a>
 									<div class="reco-news-highlight__content">
-										<time datetime="<?php echo esc_attr($item['datetime']); ?>"><span><?php echo esc_html(substr($item['date'], 0, 2)); ?></span><?php echo esc_html(substr($item['date'], 3)); ?></time>
-										<h2><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($item['title']); ?></a></h2>
+										<time datetime="<?php echo esc_attr($item['datetime']); ?>">
+											<span><?php echo esc_html($item['date_day']); ?></span>
+											<small><svg viewBox="0 0 24 24" width="12" height="12" fill="none"
+													stroke="currentColor" stroke-width="2" stroke-linecap="round"
+													stroke-linejoin="round">
+													<circle cx="12" cy="12" r="10"></circle>
+													<polyline points="12 6 12 12 16 14"></polyline>
+												</svg> <?php echo esc_html($item['date_year']); ?></small>
+										</time>
+										<h2><a
+												href="<?php echo esc_url($item['link']); ?>"><?php echo esc_html($item['title']); ?></a>
+										</h2>
 									</div>
 								</article>
 							<?php endforeach; ?>
 						</div>
 					</div>
 
-					<div class="reco-news-feed" aria-label="Danh sách tin tức">
-						<?php reco_render_news_feed_cards(array_slice($news, 3)); ?>
+					<div class="reco-news-list" aria-label="Danh sách tin tức" id="reco-news-list-container">
+						<?php
+						$args = array(
+							'post_type' => 'post',
+							'post_status' => 'publish',
+							'posts_per_page' => 10,
+							'offset' => 3,
+						);
+						$news_query = new WP_Query($args);
+						if ($news_query->have_posts()) {
+							reco_render_news_list_items($news_query);
+						} else {
+							// Fallback to hardcoded if no WP posts
+							foreach (array_slice($news, 3) as $item) {
+								?>
+								<article class="reco-news-list-item" data-reveal>
+									<a class="reco-news-list-item__image" href="<?php echo esc_url(reco_news_link()); ?>"
+										aria-label="<?php echo esc_attr($item['title']); ?>">
+										<img src="<?php echo esc_url(reco_asset($item['image'])); ?>"
+											alt="<?php echo esc_attr($item['title']); ?>" width="240" height="160" loading="lazy">
+									</a>
+									<div class="reco-news-list-item__body">
+										<h2><a
+												href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($item['title']); ?></a>
+										</h2>
+										<div class="reco-news-list-item__meta">
+											<time datetime="<?php echo esc_attr($item['datetime']); ?>">
+												<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+													stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+													<circle cx="12" cy="12" r="10"></circle>
+													<polyline points="12 6 12 12 16 14"></polyline>
+												</svg>
+												<?php echo esc_html($item['date']); ?> 12:00
+											</time>
+											<span class="reco-news-list-item__author">
+												<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+													stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+													<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+													<circle cx="12" cy="7" r="4"></circle>
+												</svg>
+												Admin
+											</span>
+											<span class="reco-news-list-item__views">
+												<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+													stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+													<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+													<circle cx="12" cy="12" r="3"></circle>
+												</svg>
+												<?php echo rand(100, 2000); ?>
+											</span>
+										</div>
+										<p class="reco-news-list-item__excerpt"><?php echo esc_html($item['desc']); ?></p>
+									</div>
+								</article>
+								<?php
+							}
+						}
+						?>
 					</div>
+					<?php
+					$total_pages = ceil(max(0, $news_query->found_posts - 3) / 10);
+					if ($total_pages > 1):
+						?>
+						<div class="reco-news-loadmore">
+							<button id="reco-news-loadmore-btn" data-page="1" class="reco-button reco-button--ghost">Xem thêm
+								<span aria-hidden="true">↓</span></button>
+						</div>
+					<?php endif; ?>
 				</main>
 
 				<aside class="reco-news-page__sidebar" aria-label="Danh mục và tin tham khảo">
@@ -1098,20 +1276,13 @@ function reco_render_news()
 						<h2>Danh mục tin tức</h2>
 						<ul>
 							<?php foreach ($categories as $category): ?>
-								<li><a href="#tin-moi"><span aria-hidden="true">›</span><?php echo esc_html($category); ?></a></li>
+								<li><a href="#tin-moi"><span aria-hidden="true">›</span><?php echo esc_html($category); ?></a>
+								</li>
 							<?php endforeach; ?>
 						</ul>
 					</section>
 
-					<section class="reco-news-subscribe" data-reveal>
-						<p>Đăng ký nhận bản tin</p>
-						<h2>Nhà Ở Ngay</h2>
-						<form action="<?php echo esc_url(home_url('/lien-he/')); ?>" method="get">
-							<label class="screen-reader-text" for="reco-news-email">Email của bạn</label>
-							<input id="reco-news-email" name="email" type="email" placeholder="Nhập email của bạn" required>
-							<button type="submit" aria-label="Đăng ký nhận bản tin"><span aria-hidden="true">→</span></button>
-						</form>
-					</section>
+
 
 					<section class="reco-news-widget reco-news-widget--reviews" data-reveal>
 						<h2>Review 4 phương</h2>
@@ -1123,9 +1294,13 @@ function reco_render_news()
 										alt="<?php echo esc_attr($review['title']); ?>" width="400" height="260" loading="lazy">
 								</a>
 								<div class="reco-news-review__body">
-									<time datetime="<?php echo esc_attr($review['datetime']); ?>"><?php echo esc_html($review['date']); ?></time>
-									<h3><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($review['title']); ?></a></h3>
-									<?php if (!empty($review['desc'])): ?><p><?php echo esc_html($review['desc']); ?></p><?php endif; ?>
+									<time
+										datetime="<?php echo esc_attr($review['datetime']); ?>"><?php echo esc_html($review['date']); ?></time>
+									<h3><a
+											href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($review['title']); ?></a>
+									</h3>
+									<?php if (!empty($review['desc'])): ?>
+										<p><?php echo esc_html($review['desc']); ?></p><?php endif; ?>
 								</div>
 							</article>
 						<?php endforeach; ?>
@@ -1248,20 +1423,20 @@ function reco_render_careers()
 				<?php
 				$job_query = new WP_Query(
 					array(
-						'post_type'      => 'reco_job',
+						'post_type' => 'reco_job',
 						'posts_per_page' => -1,
-						'post_status'    => 'publish',
-						'orderby'        => 'menu_order date',
-						'order'          => 'ASC',
-						'meta_query'     => array(
+						'post_status' => 'publish',
+						'orderby' => 'menu_order date',
+						'order' => 'ASC',
+						'meta_query' => array(
 							'relation' => 'OR',
 							array(
-								'key'     => 'reco_job_active',
-								'value'   => '0',
+								'key' => 'reco_job_active',
+								'value' => '0',
 								'compare' => '!=',
 							),
 							array(
-								'key'     => 'reco_job_active',
+								'key' => 'reco_job_active',
 								'compare' => 'NOT EXISTS',
 							)
 						),
@@ -1278,26 +1453,44 @@ function reco_render_careers()
 						$description = get_field('reco_job_description');
 						$excerpt = wp_trim_words(wp_strip_all_tags($description), 22, '...');
 						$modal_id = 'reco-modal-' . get_the_ID();
-						
+
 						// Determine badge class
 						$badge_class = 'badge-orange';
-						if ($department === 'Quản lý') $badge_class = 'badge-blue';
-						if ($department === 'Marketing') $badge_class = 'badge-green';
+						if ($department === 'Quản lý')
+							$badge_class = 'badge-blue';
+						if ($department === 'Marketing')
+							$badge_class = 'badge-green';
 						?>
 						<article class="reco-job-card" data-reveal>
 							<?php if ($department): ?>
-								<span class="reco-job-card__badge <?php echo esc_attr($badge_class); ?>"><?php echo esc_html($department); ?></span>
+								<span
+									class="reco-job-card__badge <?php echo esc_attr($badge_class); ?>"><?php echo esc_html($department); ?></span>
 							<?php endif; ?>
 							<h3 class="reco-job-card__title"><?php the_title(); ?></h3>
 							<ul class="reco-job-card__meta">
-								<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> <?php echo esc_html($branch ? $branch : 'Hà Nội'); ?></li>
-								<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Toàn thời gian</li>
+								<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+											d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+										</path>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+											d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+									</svg> <?php echo esc_html($branch ? $branch : 'Hà Nội'); ?></li>
+								<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+											d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+									</svg> Toàn thời gian</li>
 								<?php if ($experience): ?>
-								<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> <?php echo esc_html($experience); ?></li>
+									<li><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+												d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+											</path>
+										</svg> <?php echo esc_html($experience); ?></li>
 								<?php endif; ?>
 							</ul>
 							<p class="reco-job-card__excerpt"><?php echo esc_html($excerpt); ?></p>
-							<a class="reco-job-card__button" href="<?php echo esc_url(add_query_arg(array('nhu-cau' => 'tuyen-dung', 'vi-tri' => get_the_title()), home_url('/lien-he/'))); ?>#form-lien-he">ỨNG TUYỂN &rarr;</a>
+							<a class="reco-job-card__button"
+								href="<?php echo esc_url(add_query_arg(array('nhu-cau' => 'tuyen-dung', 'vi-tri' => get_the_title()), home_url('/lien-he/'))); ?>#form-lien-he">ỨNG
+								TUYỂN &rarr;</a>
 						</article>
 						<?php
 						++$index;
