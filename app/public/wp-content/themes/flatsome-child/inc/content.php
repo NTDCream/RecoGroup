@@ -71,36 +71,48 @@ function reco_news_items()
 		array(
 			'title' => 'Kết nối nguồn lực, mở rộng giá trị hợp tác chiến lược',
 			'category' => 'Doanh nghiệp',
+			'date' => '12/08/2026',
+			'datetime' => '2026-08-12',
 			'image' => 'images/event-signing.jpg',
 			'desc' => 'RECO củng cố hệ sinh thái dịch vụ bằng các thỏa thuận hợp tác thiết thực, hướng đến trải nghiệm đồng bộ cho khách hàng.',
 		),
 		array(
 			'title' => 'Dấu ấn phát triển từ mạng lưới chi nhánh chuyên nghiệp',
 			'category' => 'Hoạt động',
+			'date' => '30/07/2026',
+			'datetime' => '2026-07-30',
 			'image' => 'images/about-team.jpg',
 			'desc' => 'Năng lực vận hành được xây dựng từ đội ngũ am hiểu địa bàn, sản phẩm, pháp lý và nhu cầu thực tế của khách hàng.',
 		),
 		array(
 			'title' => 'Celestine Westlake — không gian sống mới bên Hồ Tây',
 			'category' => 'Dự án',
+			'date' => '18/07/2026',
+			'datetime' => '2026-07-18',
 			'image' => 'images/project-celestine.jpg',
 			'desc' => 'Tổng quan dự án căn hộ cao cấp với 216 sản phẩm, pháp lý sở hữu lâu dài và vị trí tại 300 Võ Chí Công.',
 		),
 		array(
 			'title' => 'Chuẩn hóa đội ngũ tư vấn theo hành trình khách hàng',
 			'category' => 'Góc nhìn',
+			'date' => '06/07/2026',
+			'datetime' => '2026-07-06',
 			'image' => 'images/about-collaboration.jpg',
 			'desc' => 'Từ tiếp nhận nhu cầu đến hậu mãi, mỗi điểm chạm đều được RECO xây dựng trên nền tảng minh bạch và trách nhiệm.',
 		),
 		array(
 			'title' => 'Khai trương điểm giao dịch — gần khách hàng hơn mỗi ngày',
 			'category' => 'Nội bộ',
+			'date' => '22/06/2026',
+			'datetime' => '2026-06-22',
 			'image' => 'images/event-opening.jpg',
 			'desc' => 'Không gian làm việc mới hỗ trợ đội ngũ phục vụ nhanh hơn, kết nối tốt hơn và chia sẻ cơ hội phát triển.',
 		),
 		array(
 			'title' => 'Tư duy đầu tư bất động sản: ưu tiên pháp lý và giá trị sử dụng',
 			'category' => 'Kiến thức',
+			'date' => '09/06/2026',
+			'datetime' => '2026-06-09',
 			'image' => 'images/contact-city.webp',
 			'desc' => 'Một quyết định bền vững bắt đầu từ thông tin rõ ràng, nhu cầu thật và kế hoạch tài chính phù hợp.',
 		),
@@ -594,6 +606,86 @@ function reco_render_news_cards($items)
 	}
 }
 
+function reco_news_categories()
+{
+	return array(
+		'Tư vấn/Hỏi đáp quy hoạch',
+		'Tư vấn tài chính',
+		'Tin tức tổng hợp',
+		'Tư vấn thiết kế / cải tạo công trình',
+		'Tin tức nội bộ',
+		'Quy hoạch đô thị',
+		'Thị trường bất động sản',
+		'Du lịch',
+		'Dự án tiêu biểu',
+		'Dịch vụ công chứng',
+		'Luật & thủ tục mua bán',
+		'Quy định chung',
+		'Thế giới',
+		'Tư vấn phong thủy',
+		'Định giá bất động sản',
+	);
+}
+
+function reco_news_reviews()
+{
+	return array(
+		array(
+			'title' => 'Review Chung cư Hapulico Complex',
+			'date' => '15/03/2025',
+			'datetime' => '2025-03-15',
+			'image' => 'images/project-palmy.jpg',
+			'desc' => 'Góc nhìn về vị trí, tiện ích và nhịp sống tại khu đô thị có mật độ kết nối cao.',
+		),
+		array(
+			'title' => 'Review chung cư Stellar Garden',
+			'date' => '01/03/2025',
+			'datetime' => '2025-03-01',
+			'image' => 'images/project-viet-han.jpg',
+		),
+		array(
+			'title' => 'Review phố Ngụy Như Kon Tum — “Phố chung cư” quận Thanh Xuân',
+			'date' => '25/10/2024',
+			'datetime' => '2024-10-25',
+			'image' => 'images/contact-city.webp',
+		),
+		array(
+			'title' => 'Review phố Quan Nhân',
+			'date' => '19/03/2024',
+			'datetime' => '2024-03-19',
+			'image' => 'images/event-opening-2.jpg',
+		),
+	);
+}
+
+function reco_news_link()
+{
+	return home_url('/lien-he/');
+}
+
+function reco_render_news_feed_cards($items)
+{
+	foreach ($items as $item) {
+		?>
+		<article class="reco-news-feed-card" data-reveal>
+			<a class="reco-news-feed-card__image" href="<?php echo esc_url(reco_news_link()); ?>"
+				aria-label="<?php echo esc_attr($item['title']); ?>">
+				<img src="<?php echo esc_url(reco_asset($item['image'])); ?>"
+					alt="<?php echo esc_attr($item['title']); ?>" width="640" height="480" loading="lazy">
+			</a>
+			<div class="reco-news-feed-card__body">
+				<span class="reco-news-feed-card__category"><?php echo esc_html($item['category']); ?></span>
+				<h2><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($item['title']); ?></a></h2>
+				<time datetime="<?php echo esc_attr($item['datetime']); ?>"><?php echo esc_html($item['date']); ?></time>
+				<p><?php echo esc_html($item['desc']); ?></p>
+				<a class="reco-news-read-link" href="<?php echo esc_url(reco_news_link()); ?>">Xem thêm <span
+						aria-hidden="true">→</span></a>
+			</div>
+		</article>
+		<?php
+	}
+}
+
 function reco_contact_form()
 {
 	$status = isset($_GET['gui']) ? sanitize_key(wp_unslash($_GET['gui'])) : '';
@@ -948,34 +1040,98 @@ function reco_render_products()
 function reco_render_news()
 {
 	$news = reco_news_items();
-	reco_subhero('Tin tức', 'Cập nhật thị trường — chia sẻ góc nhìn', 'images/event-signing.jpg', 'center 44%');
+	$reviews = reco_news_reviews();
+	$categories = reco_news_categories();
 	?>
-	<section class="reco-section">
+	<section class="reco-news-page">
 		<div class="reco-container">
-			<?php reco_section_heading('Tin mới từ RECO', 'Thông tin có chọn lọc.<br><em>Góc nhìn có chiều sâu.</em>', 'Những câu chuyện về dự án, hoạt động doanh nghiệp và kinh nghiệm bất động sản được trình bày rõ ràng, dễ tiếp cận.'); ?>
-			<div class="reco-news-feature" data-reveal>
-				<img src="<?php echo esc_url(reco_asset($news[0]['image'])); ?>"
-					alt="<?php echo esc_attr($news[0]['title']); ?>" width="1200" height="760" loading="lazy">
-				<div><span><?php echo esc_html($news[0]['category']); ?></span>
-					<h2><?php echo esc_html($news[0]['title']); ?></h2>
-					<p><?php echo esc_html($news[0]['desc']); ?></p><a class="reco-text-link"
-						href="<?php echo esc_url(home_url('/lien-he/')); ?>">Kết nối cùng RECO <span
-							aria-hidden="true">→</span></a>
-				</div>
-			</div>
-			<div class="reco-news-grid reco-news-grid--archive">
-				<?php reco_render_news_cards(array_slice($news, 1)); ?>
-			</div>
-		</div>
-	</section>
+			<nav class="reco-news-breadcrumb" aria-label="Breadcrumb">
+				<a href="<?php echo esc_url(home_url('/')); ?>">Trang chủ</a><span aria-hidden="true">/</span><span
+					aria-current="page">Tin tức</span>
+			</nav>
 
-	<section class="reco-section reco-insight-cta">
-		<div class="reco-container reco-insight-cta__inner" data-reveal>
-			<div><span class="reco-eyebrow reco-eyebrow--light">Tư vấn theo nhu cầu</span>
-				<h2>Thông tin chỉ thực sự có giá trị<br>khi phù hợp với quyết định của bạn.</h2>
+			<header class="reco-news-page__header" data-reveal>
+				<span class="reco-eyebrow">Góc nhìn bất động sản</span>
+				<h1>Tin tức</h1>
+				<p>Cập nhật thông tin thị trường, dự án và những câu chuyện đáng chú ý từ RECO.</p>
+			</header>
+
+			<div class="reco-news-page__layout">
+				<main class="reco-news-page__main" id="tin-moi">
+					<div class="reco-news-highlights" aria-label="Tin nổi bật">
+						<article class="reco-news-highlight reco-news-highlight--primary" data-reveal>
+							<a href="<?php echo esc_url(reco_news_link()); ?>" class="reco-news-highlight__image"
+								aria-label="<?php echo esc_attr($news[0]['title']); ?>">
+								<img src="<?php echo esc_url(reco_asset($news[0]['image'])); ?>"
+									alt="<?php echo esc_attr($news[0]['title']); ?>" width="1000" height="670" loading="eager">
+							</a>
+							<div class="reco-news-highlight__content">
+								<time datetime="<?php echo esc_attr($news[0]['datetime']); ?>"><span><?php echo esc_html(substr($news[0]['date'], 0, 2)); ?></span><?php echo esc_html(substr($news[0]['date'], 3)); ?></time>
+								<h2><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($news[0]['title']); ?></a></h2>
+							</div>
+						</article>
+
+						<div class="reco-news-highlights__stack">
+							<?php foreach (array_slice($news, 1, 2) as $item): ?>
+								<article class="reco-news-highlight reco-news-highlight--secondary" data-reveal>
+									<a href="<?php echo esc_url(reco_news_link()); ?>" class="reco-news-highlight__image"
+										aria-label="<?php echo esc_attr($item['title']); ?>">
+										<img src="<?php echo esc_url(reco_asset($item['image'])); ?>"
+											alt="<?php echo esc_attr($item['title']); ?>" width="600" height="400" loading="lazy">
+									</a>
+									<div class="reco-news-highlight__content">
+										<time datetime="<?php echo esc_attr($item['datetime']); ?>"><span><?php echo esc_html(substr($item['date'], 0, 2)); ?></span><?php echo esc_html(substr($item['date'], 3)); ?></time>
+										<h2><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($item['title']); ?></a></h2>
+									</div>
+								</article>
+							<?php endforeach; ?>
+						</div>
+					</div>
+
+					<div class="reco-news-feed" aria-label="Danh sách tin tức">
+						<?php reco_render_news_feed_cards(array_slice($news, 3)); ?>
+					</div>
+				</main>
+
+				<aside class="reco-news-page__sidebar" aria-label="Danh mục và tin tham khảo">
+					<section class="reco-news-widget reco-news-widget--categories" data-reveal>
+						<h2>Danh mục tin tức</h2>
+						<ul>
+							<?php foreach ($categories as $category): ?>
+								<li><a href="#tin-moi"><span aria-hidden="true">›</span><?php echo esc_html($category); ?></a></li>
+							<?php endforeach; ?>
+						</ul>
+					</section>
+
+					<section class="reco-news-subscribe" data-reveal>
+						<p>Đăng ký nhận bản tin</p>
+						<h2>Nhà Ở Ngay</h2>
+						<form action="<?php echo esc_url(home_url('/lien-he/')); ?>" method="get">
+							<label class="screen-reader-text" for="reco-news-email">Email của bạn</label>
+							<input id="reco-news-email" name="email" type="email" placeholder="Nhập email của bạn" required>
+							<button type="submit" aria-label="Đăng ký nhận bản tin"><span aria-hidden="true">→</span></button>
+						</form>
+					</section>
+
+					<section class="reco-news-widget reco-news-widget--reviews" data-reveal>
+						<h2>Review 4 phương</h2>
+						<?php foreach ($reviews as $index => $review): ?>
+							<article class="reco-news-review<?php echo 0 === $index ? ' reco-news-review--featured' : ''; ?>">
+								<a class="reco-news-review__image" href="<?php echo esc_url(reco_news_link()); ?>"
+									aria-label="<?php echo esc_attr($review['title']); ?>">
+									<img src="<?php echo esc_url(reco_asset($review['image'])); ?>"
+										alt="<?php echo esc_attr($review['title']); ?>" width="400" height="260" loading="lazy">
+								</a>
+								<div class="reco-news-review__body">
+									<time datetime="<?php echo esc_attr($review['datetime']); ?>"><?php echo esc_html($review['date']); ?></time>
+									<h3><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($review['title']); ?></a></h3>
+									<?php if (!empty($review['desc'])): ?><p><?php echo esc_html($review['desc']); ?></p><?php endif; ?>
+								</div>
+							</article>
+						<?php endforeach; ?>
+					</section>
+				</aside>
 			</div>
-			<a class="reco-button reco-button--white" href="<?php echo esc_url(home_url('/lien-he/')); ?>">Trao đổi với
-				chuyên gia <span aria-hidden="true">→</span></a>
 		</div>
 	</section>
 	<?php
