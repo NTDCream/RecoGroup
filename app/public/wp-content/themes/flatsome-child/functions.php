@@ -280,18 +280,22 @@ add_action('wp_ajax_reco_load_more_news', 'reco_ajax_load_more_news');
 add_action('wp_ajax_nopriv_reco_load_more_news', 'reco_ajax_load_more_news');
 function reco_ajax_load_more_news() {
 	check_ajax_referer('reco_load_more_news', 'nonce');
-	$paged = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+	$paged = isset($_POST['page']) ? max(2, (int) $_POST['page']) : 2;
+	$category_id = isset($_POST['category']) ? absint($_POST['category']) : 0;
 	$args = array(
 		'post_type' => 'post',
 		'post_status' => 'publish',
 		'posts_per_page' => 10,
-		'paged' => $paged,
+		'offset' => 3 + (($paged - 1) * 10),
 	);
+	if ($category_id && get_category($category_id)) {
+		$args['cat'] = $category_id;
+	}
 	$query = new WP_Query($args);
 	if ($query->have_posts()) {
 		ob_start();
 		reco_render_news_list_items($query);
-		wp_send_json_success(array('html' => ob_get_clean(), 'has_more' => $query->max_num_pages > $paged));
+		wp_send_json_success(array('html' => ob_get_clean(), 'has_more' => $query->found_posts > $args['offset'] + $args['posts_per_page']));
 	} else {
 		wp_send_json_error('No posts found');
 	}

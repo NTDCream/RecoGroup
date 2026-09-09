@@ -265,6 +265,7 @@
 				formData.append('action', 'reco_load_more_news');
 				formData.append('nonce', recoAjax.nonce);
 				formData.append('page', page);
+				formData.append('category', loadMoreBtn.dataset.category || '');
 
 				fetch(recoAjax.ajaxurl, {
 					method: 'POST',

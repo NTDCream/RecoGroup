@@ -1089,8 +1089,11 @@ function reco_render_products()
 	<?php
 }
 
-function reco_render_news()
+function reco_render_news($category = null)
 {
+	$is_category_archive = $category instanceof WP_Term && 'category' === $category->taxonomy;
+	$category_id = $is_category_archive ? (int) $category->term_id : 0;
+	$category_query = $category_id ? array('cat' => $category_id) : array();
 	$news = reco_news_items();
 	$reviews = reco_news_reviews();
 	$categories = reco_news_categories();
@@ -1098,25 +1101,30 @@ function reco_render_news()
 	<section class="reco-news-page">
 		<div class="reco-container">
 			<nav class="reco-news-breadcrumb" aria-label="Breadcrumb">
-				<a href="<?php echo esc_url(home_url('/')); ?>">Trang chủ</a><span aria-hidden="true">/</span><span
-					aria-current="page">Tin tức</span>
+				<a href="<?php echo esc_url(home_url('/')); ?>">Trang chủ</a><span aria-hidden="true">/</span>
+				<?php if ($is_category_archive): ?>
+					<a href="<?php echo esc_url(home_url('/tin-tuc/')); ?>">Tin tức</a><span aria-hidden="true">/</span>
+					<span aria-current="page"><?php echo esc_html($category->name); ?></span>
+				<?php else: ?>
+					<span aria-current="page">Tin tức</span>
+				<?php endif; ?>
 			</nav>
 
 			<header class="reco-news-page__header" data-reveal>
 				<span class="reco-eyebrow">Góc nhìn bất động sản</span>
-				<h1>Tin tức</h1>
-				<p>Cập nhật thông tin thị trường, dự án và những câu chuyện đáng chú ý từ RECO.</p>
+				<h1><?php echo esc_html($is_category_archive ? $category->name : 'Tin tức'); ?></h1>
+				<p><?php echo esc_html($is_category_archive ? sprintf('Các bài viết mới nhất thuộc danh mục %s.', $category->name) : 'Cập nhật thông tin thị trường, dự án và những câu chuyện đáng chú ý từ RECO.'); ?></p>
 			</header>
 
 			<div class="reco-news-page__layout">
 				<main class="reco-news-page__main" id="tin-moi">
 					<div class="reco-news-highlights" aria-label="Tin nổi bật">
 						<?php
-						$hl_args = array(
+						$hl_args = array_merge($category_query, array(
 							'post_type' => 'post',
 							'post_status' => 'publish',
 							'posts_per_page' => 3,
-						);
+						));
 						$hl_query = new WP_Query($hl_args);
 						$hl_posts = array();
 						if ($hl_query->have_posts()) {
@@ -1189,12 +1197,12 @@ function reco_render_news()
 
 					<div class="reco-news-list" aria-label="Danh sách tin tức" id="reco-news-list-container">
 						<?php
-						$args = array(
+						$args = array_merge($category_query, array(
 							'post_type' => 'post',
 							'post_status' => 'publish',
 							'posts_per_page' => 10,
 							'offset' => 3,
-						);
+						));
 						$news_query = new WP_Query($args);
 						if ($news_query->have_posts()) {
 							reco_render_news_list_items($news_query);
@@ -1208,7 +1216,7 @@ function reco_render_news()
 					if ($total_pages > 1):
 						?>
 						<div class="reco-news-loadmore">
-							<button id="reco-news-loadmore-btn" data-page="1" class="reco-button reco-button--ghost">Xem thêm
+							<button id="reco-news-loadmore-btn" data-page="1" data-category="<?php echo esc_attr($category_id); ?>" class="reco-button reco-button--ghost">Xem thêm
 								<span aria-hidden="true">↓</span></button>
 						</div>
 					<?php endif; ?>
@@ -1225,8 +1233,10 @@ function reco_render_news()
 								'hide_empty' => false,
 							));
 							if (!empty($wp_categories)):
-								foreach ($wp_categories as $cat): ?>
-									<li><a href="<?php echo esc_url(get_category_link($cat->term_id)); ?>"><span aria-hidden="true">›</span><?php echo esc_html($cat->name); ?></a></li>
+								foreach ($wp_categories as $cat):
+									$is_active_category = $is_category_archive && $category_id === (int) $cat->term_id;
+									?>
+									<li><a class="<?php echo $is_active_category ? 'is-active' : ''; ?>" href="<?php echo esc_url(get_category_link($cat->term_id)); ?>"<?php echo $is_active_category ? ' aria-current="page"' : ''; ?>><span aria-hidden="true">›</span><?php echo esc_html($cat->name); ?></a></li>
 								<?php endforeach;
 							else:
 								foreach ($categories as $category): ?>
@@ -1242,13 +1252,13 @@ function reco_render_news()
 					<section class="reco-news-widget reco-news-widget--reviews" data-reveal>
 						<h2>Review 4 phương</h2>
 						<?php
-						$review_query = new WP_Query(array(
+						$review_query = new WP_Query(array_merge($category_query, array(
 							'post_type' => 'post',
 							'post_status' => 'publish',
 							'posts_per_page' => 4,
 							'orderby' => 'date',
 							'order' => 'DESC',
-						));
+						)));
 						if ($review_query->have_posts()):
 							$review_index = 0;
 							while ($review_query->have_posts()):
@@ -1273,7 +1283,7 @@ function reco_render_news()
 								$review_index++;
 							endwhile;
 							wp_reset_postdata();
-						else:
+						elseif (!$is_category_archive):
 							foreach ($reviews as $index => $review): ?>
 								<article class="reco-news-review<?php echo 0 === $index ? ' reco-news-review--featured' : ''; ?>">
 									<a class="reco-news-review__image" href="<?php echo esc_url(reco_news_link()); ?>"

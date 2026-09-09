@@ -1797,6 +1797,12 @@ body.reco-menu-open {
 	color: var(--reco-blue);
 }
 
+.reco-news-widget li a.is-active {
+	padding-left: 4px;
+	color: var(--reco-blue);
+	font-weight: 800;
+}
+
 .reco-news-subscribe {
 	padding: 22px;
 	border-radius: 4px;
