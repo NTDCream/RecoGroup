@@ -1134,20 +1134,6 @@ function reco_render_news()
 							wp_reset_postdata();
 						}
 
-						if (count($hl_posts) < 3) {
-							$needed = 3 - count($hl_posts);
-							foreach (array_slice($news, count($hl_posts), $needed) as $item) {
-								$hl_posts[] = array(
-									'title' => $item['title'],
-									'link' => reco_news_link(),
-									'image' => reco_asset($item['image']),
-									'date_day' => substr($item['date'], 0, 5),
-									'date_year' => substr($item['date'], 6),
-									'datetime' => $item['datetime'],
-								);
-							}
-						}
-
 						if (!empty($hl_posts[0])):
 							?>
 							<article class="reco-news-highlight reco-news-highlight--primary" data-reveal>
@@ -1213,50 +1199,7 @@ function reco_render_news()
 						if ($news_query->have_posts()) {
 							reco_render_news_list_items($news_query);
 						} else {
-							// Fallback to hardcoded if no WP posts
-							foreach (array_slice($news, 3) as $item) {
-								?>
-								<article class="reco-news-list-item" data-reveal>
-									<a class="reco-news-list-item__image" href="<?php echo esc_url(reco_news_link()); ?>"
-										aria-label="<?php echo esc_attr($item['title']); ?>">
-										<img src="<?php echo esc_url(reco_asset($item['image'])); ?>"
-											alt="<?php echo esc_attr($item['title']); ?>" width="240" height="160" loading="lazy">
-									</a>
-									<div class="reco-news-list-item__body">
-										<h2><a
-												href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($item['title']); ?></a>
-										</h2>
-										<div class="reco-news-list-item__meta">
-											<time datetime="<?php echo esc_attr($item['datetime']); ?>">
-												<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-													stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-													<circle cx="12" cy="12" r="10"></circle>
-													<polyline points="12 6 12 12 16 14"></polyline>
-												</svg>
-												<?php echo esc_html($item['date']); ?> 12:00
-											</time>
-											<span class="reco-news-list-item__author">
-												<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-													stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-													<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-													<circle cx="12" cy="7" r="4"></circle>
-												</svg>
-												Admin
-											</span>
-											<span class="reco-news-list-item__views">
-												<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-													stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-													<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-													<circle cx="12" cy="12" r="3"></circle>
-												</svg>
-												<?php echo rand(100, 2000); ?>
-											</span>
-										</div>
-										<p class="reco-news-list-item__excerpt"><?php echo esc_html($item['desc']); ?></p>
-									</div>
-								</article>
-								<?php
-							}
+							echo '<p style="padding:24px 0;color:var(--reco-muted);text-align:center;">Chưa có bài viết nào.</p>';
 						}
 						?>
 					</div>
@@ -1275,10 +1218,22 @@ function reco_render_news()
 					<section class="reco-news-widget reco-news-widget--categories" data-reveal>
 						<h2>Danh mục tin tức</h2>
 						<ul>
-							<?php foreach ($categories as $category): ?>
-								<li><a href="#tin-moi"><span aria-hidden="true">›</span><?php echo esc_html($category); ?></a>
-								</li>
-							<?php endforeach; ?>
+							<?php
+							$wp_categories = get_categories(array(
+								'orderby' => 'name',
+								'order' => 'ASC',
+								'hide_empty' => false,
+							));
+							if (!empty($wp_categories)):
+								foreach ($wp_categories as $cat): ?>
+									<li><a href="<?php echo esc_url(get_category_link($cat->term_id)); ?>"><span aria-hidden="true">›</span><?php echo esc_html($cat->name); ?></a></li>
+								<?php endforeach;
+							else:
+								foreach ($categories as $category): ?>
+									<li><a href="#tin-moi"><span aria-hidden="true">›</span><?php echo esc_html($category); ?></a></li>
+								<?php endforeach;
+							endif;
+							?>
 						</ul>
 					</section>
 
@@ -1286,24 +1241,57 @@ function reco_render_news()
 
 					<section class="reco-news-widget reco-news-widget--reviews" data-reveal>
 						<h2>Review 4 phương</h2>
-						<?php foreach ($reviews as $index => $review): ?>
-							<article class="reco-news-review<?php echo 0 === $index ? ' reco-news-review--featured' : ''; ?>">
-								<a class="reco-news-review__image" href="<?php echo esc_url(reco_news_link()); ?>"
-									aria-label="<?php echo esc_attr($review['title']); ?>">
-									<img src="<?php echo esc_url(reco_asset($review['image'])); ?>"
-										alt="<?php echo esc_attr($review['title']); ?>" width="400" height="260" loading="lazy">
-								</a>
-								<div class="reco-news-review__body">
-									<time
-										datetime="<?php echo esc_attr($review['datetime']); ?>"><?php echo esc_html($review['date']); ?></time>
-									<h3><a
-											href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($review['title']); ?></a>
-									</h3>
-									<?php if (!empty($review['desc'])): ?>
-										<p><?php echo esc_html($review['desc']); ?></p><?php endif; ?>
-								</div>
-							</article>
-						<?php endforeach; ?>
+						<?php
+						$review_query = new WP_Query(array(
+							'post_type' => 'post',
+							'post_status' => 'publish',
+							'posts_per_page' => 4,
+							'orderby' => 'date',
+							'order' => 'DESC',
+						));
+						if ($review_query->have_posts()):
+							$review_index = 0;
+							while ($review_query->have_posts()):
+								$review_query->the_post();
+								$review_thumb = get_the_post_thumbnail_url() ?: reco_asset('images/news-placeholder.jpg');
+								?>
+								<article class="reco-news-review<?php echo 0 === $review_index ? ' reco-news-review--featured' : ''; ?>">
+									<a class="reco-news-review__image" href="<?php echo esc_url(get_permalink()); ?>"
+										aria-label="<?php echo esc_attr(get_the_title()); ?>">
+										<img src="<?php echo esc_url($review_thumb); ?>"
+											alt="<?php echo esc_attr(get_the_title()); ?>" width="400" height="260" loading="lazy">
+									</a>
+									<div class="reco-news-review__body">
+										<time datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d/m/Y')); ?></time>
+										<h3><a href="<?php echo esc_url(get_permalink()); ?>"><?php echo esc_html(get_the_title()); ?></a></h3>
+										<?php if ($review_index === 0 && has_excerpt()): ?>
+											<p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 18)); ?></p>
+										<?php endif; ?>
+									</div>
+								</article>
+								<?php
+								$review_index++;
+							endwhile;
+							wp_reset_postdata();
+						else:
+							foreach ($reviews as $index => $review): ?>
+								<article class="reco-news-review<?php echo 0 === $index ? ' reco-news-review--featured' : ''; ?>">
+									<a class="reco-news-review__image" href="<?php echo esc_url(reco_news_link()); ?>"
+										aria-label="<?php echo esc_attr($review['title']); ?>">
+										<img src="<?php echo esc_url(reco_asset($review['image'])); ?>"
+											alt="<?php echo esc_attr($review['title']); ?>" width="400" height="260" loading="lazy">
+									</a>
+									<div class="reco-news-review__body">
+										<time datetime="<?php echo esc_attr($review['datetime']); ?>"><?php echo esc_html($review['date']); ?></time>
+										<h3><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($review['title']); ?></a></h3>
+										<?php if (!empty($review['desc'])): ?>
+											<p><?php echo esc_html($review['desc']); ?></p>
+										<?php endif; ?>
+									</div>
+								</article>
+							<?php endforeach;
+						endif;
+						?>
 					</section>
 				</aside>
 			</div>

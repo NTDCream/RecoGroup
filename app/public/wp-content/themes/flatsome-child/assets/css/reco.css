@@ -1392,7 +1392,7 @@ body.reco-menu-open {
 }
 
 .reco-news-page__header {
-	max-width: 690px;
+	max-width: 100%;
 	margin-bottom: clamp(42px, 5vw, 68px);
 }
 
@@ -1408,7 +1408,7 @@ body.reco-menu-open {
 }
 
 .reco-news-page__header p {
-	max-width: 580px;
+	max-width: 100%;
 	margin: 0;
 	font-size: 1rem;
 }
