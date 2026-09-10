@@ -28,3 +28,12 @@ Stack trace:
 [21-Aug-2026 08:07:37 UTC] PHP Warning:  ZipArchive::close(): Renaming temporary file failed: Unknown error in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\plugins\wpvivid-backuprestore\includes\new_backup\class-wpvivid-zip.php on line 106
 [21-Aug-2026 08:08:44 UTC] PHP Warning:  ZipArchive::close(): Renaming temporary file failed: Unknown error in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\plugins\wpvivid-backuprestore\includes\new_backup\class-wpvivid-zip.php on line 106
 [21-Aug-2026 08:18:52 UTC] PHP Warning:  Undefined array key 0 in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\plugins\wpvivid-backuprestore\includes\class-wpvivid.php on line 1123
+[10-Sep-2026 09:34:07 UTC] PHP Warning:  require_once(C:\Users\Hi\Local Sites\reco-group\app\public/wp-content/themes/flatsome-child/inc/sale-fields.php): Failed to open stream: No such file or directory in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\functions.php on line 11
+[10-Sep-2026 09:34:07 UTC] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\Users\Hi\Local Sites\reco-group\app\public/wp-content/themes/flatsome-child/inc/sale-fields.php' (include_path='.:/usr/share/php:/www/wp-content/pear') in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\functions.php:11
+Stack trace:
+#0 C:\Users\Hi\Local Sites\reco-group\app\public\wp-settings.php(739): include()
+#1 C:\Users\Hi\Local Sites\reco-group\app\public\wp-config.php(103): require_once('C:\\Users\\Hi\\Loc...')
+#2 C:\Users\Hi\Local Sites\reco-group\app\public\wp-load.php(50): require_once('C:\\Users\\Hi\\Loc...')
+#3 C:\Users\Hi\Local Sites\reco-group\app\public\wp-admin\admin-ajax.php(22): require_once('C:\\Users\\Hi\\Loc...')
+#4 {main}
+  thrown in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\functions.php on line 11

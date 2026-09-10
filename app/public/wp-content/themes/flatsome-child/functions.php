@@ -8,6 +8,7 @@ defined('ABSPATH') || exit;
 require_once get_stylesheet_directory() . '/inc/content.php';
 require_once get_stylesheet_directory() . '/inc/project-fields.php';
 require_once get_stylesheet_directory() . '/inc/job-fields.php';
+require_once get_stylesheet_directory() . '/inc/sale-fields.php';
 
 function reco_asset($path)
 {
@@ -119,6 +120,8 @@ function reco_register_job_type()
 	);
 }
 add_action('init', 'reco_register_job_type');
+
+
 
 function reco_install_site_content()
 {
