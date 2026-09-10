@@ -276,6 +276,22 @@ function reco_add_favicon()
 add_action('wp_head', 'reco_add_favicon');
 add_action('admin_head', 'reco_add_favicon');
 
+function reco_track_post_views()
+{
+	if (is_admin() || is_preview() || wp_doing_ajax() || !is_singular('post')) {
+		return;
+	}
+
+	$post_id = get_queried_object_id();
+	if (!$post_id) {
+		return;
+	}
+
+	$views = absint(get_post_meta($post_id, 'post_views_count', true));
+	update_post_meta($post_id, 'post_views_count', $views + 1);
+}
+add_action('wp', 'reco_track_post_views');
+
 add_action('wp_ajax_reco_load_more_news', 'reco_ajax_load_more_news');
 add_action('wp_ajax_nopriv_reco_load_more_news', 'reco_ajax_load_more_news');
 function reco_ajax_load_more_news() {

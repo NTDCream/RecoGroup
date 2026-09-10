@@ -88,13 +88,11 @@ while ( have_posts() ) :
 								if ($count === 1):
 								?>
 									<article class="reco-sidebar-post--featured">
-										<a href="<?php the_permalink(); ?>" class="reco-sidebar-post__thumb">
-											<?php if (has_post_thumbnail()) {
-												the_post_thumbnail('medium');
-											} else {
-												echo '<img src="'.esc_url(reco_asset('images/placeholder.jpg')).'" alt="">';
-											} ?>
-										</a>
+										<?php if (has_post_thumbnail()): ?>
+											<a href="<?php the_permalink(); ?>" class="reco-sidebar-post__thumb">
+												<?php the_post_thumbnail('medium'); ?>
+											</a>
+										<?php endif; ?>
 										<div class="reco-sidebar-post__content">
 											<div class="reco-sidebar-post__date">
 												<svg viewBox="0 0 24 24" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -143,13 +141,11 @@ while ( have_posts() ) :
 				<div class="reco-related-grid" data-reveal>
 					<?php while ($related_query->have_posts()): $related_query->the_post(); ?>
 						<article class="reco-post-card">
-							<a href="<?php the_permalink(); ?>" class="reco-post-card__image">
-								<?php if (has_post_thumbnail()) {
-									the_post_thumbnail('medium_large');
-								} else {
-									echo '<img src="'.esc_url(reco_asset('images/placeholder.jpg')).'" alt="">';
-								} ?>
-							</a>
+							<?php if (has_post_thumbnail()): ?>
+								<a href="<?php the_permalink(); ?>" class="reco-post-card__image">
+									<?php the_post_thumbnail('medium_large'); ?>
+								</a>
+							<?php endif; ?>
 							<div class="reco-post-card__content">
 								<h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 								<div class="reco-post-card__meta">

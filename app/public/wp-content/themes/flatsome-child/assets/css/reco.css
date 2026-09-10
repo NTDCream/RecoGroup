@@ -1973,6 +1973,49 @@ body.reco-menu-open {
 		font-size: 0.92rem;
 	}
 
+	/* Compact mobile news rows: keep the image small so title and metadata stay readable. */
+	.reco-news-list {
+		gap: 30px;
+	}
+
+	.reco-news-list-item {
+		align-items: flex-start;
+		gap: 15px;
+		padding-bottom: 21px;
+	}
+
+	.reco-news-list-item__image {
+		flex: 0 0 clamp(104px, 28vw, 123px);
+		aspect-ratio: 4 / 3;
+	}
+
+	.reco-news-list-item__body {
+		justify-content: flex-start;
+		min-width: 0;
+	}
+
+	body.reco-site .reco-news-list-item__body h2 {
+		margin-bottom: 10px;
+		font-size: 0.98rem;
+		line-height: 1.35;
+	}
+
+	.reco-news-list-item__meta {
+		column-gap: 12px;
+		row-gap: 6px;
+		margin-bottom: 0;
+		font-size: 0.7rem;
+		line-height: 1.2;
+	}
+
+	.reco-news-list-item__meta > * {
+		gap: 5px;
+	}
+
+	.reco-news-list-item__excerpt {
+		display: none;
+	}
+
 	.reco-news-highlights {
 		grid-template-columns: 1fr;
 	}

@@ -65,60 +65,6 @@ function reco_projects()
 	);
 }
 
-function reco_news_items()
-{
-	return array(
-		array(
-			'title' => 'Kết nối nguồn lực, mở rộng giá trị hợp tác chiến lược',
-			'category' => 'Doanh nghiệp',
-			'date' => '12/08/2026',
-			'datetime' => '2026-08-12',
-			'image' => 'images/event-signing.jpg',
-			'desc' => 'RECO củng cố hệ sinh thái dịch vụ bằng các thỏa thuận hợp tác thiết thực, hướng đến trải nghiệm đồng bộ cho khách hàng.',
-		),
-		array(
-			'title' => 'Dấu ấn phát triển từ mạng lưới chi nhánh chuyên nghiệp',
-			'category' => 'Hoạt động',
-			'date' => '30/07/2026',
-			'datetime' => '2026-07-30',
-			'image' => 'images/about-team.jpg',
-			'desc' => 'Năng lực vận hành được xây dựng từ đội ngũ am hiểu địa bàn, sản phẩm, pháp lý và nhu cầu thực tế của khách hàng.',
-		),
-		array(
-			'title' => 'Celestine Westlake — không gian sống mới bên Hồ Tây',
-			'category' => 'Dự án',
-			'date' => '18/07/2026',
-			'datetime' => '2026-07-18',
-			'image' => 'images/project-celestine.jpg',
-			'desc' => 'Tổng quan dự án căn hộ cao cấp với 216 sản phẩm, pháp lý sở hữu lâu dài và vị trí tại 300 Võ Chí Công.',
-		),
-		array(
-			'title' => 'Chuẩn hóa đội ngũ tư vấn theo hành trình khách hàng',
-			'category' => 'Góc nhìn',
-			'date' => '06/07/2026',
-			'datetime' => '2026-07-06',
-			'image' => 'images/about-collaboration.jpg',
-			'desc' => 'Từ tiếp nhận nhu cầu đến hậu mãi, mỗi điểm chạm đều được RECO xây dựng trên nền tảng minh bạch và trách nhiệm.',
-		),
-		array(
-			'title' => 'Khai trương điểm giao dịch — gần khách hàng hơn mỗi ngày',
-			'category' => 'Nội bộ',
-			'date' => '22/06/2026',
-			'datetime' => '2026-06-22',
-			'image' => 'images/event-opening.jpg',
-			'desc' => 'Không gian làm việc mới hỗ trợ đội ngũ phục vụ nhanh hơn, kết nối tốt hơn và chia sẻ cơ hội phát triển.',
-		),
-		array(
-			'title' => 'Tư duy đầu tư bất động sản: ưu tiên pháp lý và giá trị sử dụng',
-			'category' => 'Kiến thức',
-			'date' => '09/06/2026',
-			'datetime' => '2026-06-09',
-			'image' => 'images/contact-city.webp',
-			'desc' => 'Một quyết định bền vững bắt đầu từ thông tin rõ ràng, nhu cầu thật và kế hoạch tài chính phù hợp.',
-		),
-	);
-}
-
 function reco_section_heading($eyebrow, $title, $description = '', $align = '')
 {
 	$class = $align ? ' reco-section-head--' . sanitize_html_class($align) : '';
@@ -585,100 +531,55 @@ function reco_project_demo_shortcode()
 }
 add_shortcode('reco_project_demo', 'reco_project_demo_shortcode');
 
-function reco_render_news_cards($items)
+function reco_render_news_cards($query)
 {
-	foreach ($items as $item) {
+	if (!$query instanceof WP_Query || !$query->have_posts()) {
+		echo '<p class="reco-project-demo__empty">Chưa có bài viết nào.</p>';
+		return;
+	}
+
+	while ($query->have_posts()) {
+		$query->the_post();
+		$categories = get_the_category();
+		$category_name = !empty($categories) ? $categories[0]->name : '';
+		$thumbnail_url = get_the_post_thumbnail_url();
 		?>
 		<article class="reco-news-card" data-reveal>
-			<div class="reco-news-card__media">
-				<img src="<?php echo esc_url(reco_asset($item['image'])); ?>" alt="<?php echo esc_attr($item['title']); ?>"
-					width="800" height="560" loading="lazy">
-				<span><?php echo esc_html($item['category']); ?></span>
-			</div>
+			<a class="reco-news-card__media" href="<?php echo esc_url(get_permalink()); ?>"
+				aria-label="<?php echo esc_attr(get_the_title()); ?>">
+				<?php if ($thumbnail_url): ?>
+					<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>"
+						width="800" height="560" loading="lazy">
+				<?php endif; ?>
+				<?php if ($category_name): ?><span><?php echo esc_html($category_name); ?></span><?php endif; ?>
+			</a>
 			<div class="reco-news-card__body">
-				<h3><?php echo esc_html($item['title']); ?></h3>
-				<p><?php echo esc_html($item['desc']); ?></p>
-				<a class="reco-text-link" href="<?php echo esc_url(home_url('/lien-he/')); ?>">Trao đổi cùng chuyên gia
+				<h3><a href="<?php echo esc_url(get_permalink()); ?>"><?php echo esc_html(get_the_title()); ?></a></h3>
+				<?php if (has_excerpt()): ?><p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 24)); ?></p><?php endif; ?>
+				<a class="reco-text-link" href="<?php echo esc_url(get_permalink()); ?>">Xem thêm
 					<span aria-hidden="true">→</span></a>
 			</div>
 		</article>
 		<?php
 	}
-}
-
-function reco_news_categories()
-{
-	return array(
-		'Tư vấn/Hỏi đáp quy hoạch',
-		'Tư vấn tài chính',
-		'Tin tức tổng hợp',
-		'Tư vấn thiết kế / cải tạo công trình',
-		'Tin tức nội bộ',
-		'Quy hoạch đô thị',
-		'Thị trường bất động sản',
-		'Du lịch',
-		'Dự án tiêu biểu',
-		'Dịch vụ công chứng',
-		'Luật & thủ tục mua bán',
-		'Quy định chung',
-		'Thế giới',
-		'Tư vấn phong thủy',
-		'Định giá bất động sản',
-	);
-}
-
-function reco_news_reviews()
-{
-	return array(
-		array(
-			'title' => 'Review Chung cư Hapulico Complex',
-			'date' => '15/03/2025',
-			'datetime' => '2025-03-15',
-			'image' => 'images/project-palmy.jpg',
-			'desc' => 'Góc nhìn về vị trí, tiện ích và nhịp sống tại khu đô thị có mật độ kết nối cao.',
-		),
-		array(
-			'title' => 'Review chung cư Stellar Garden',
-			'date' => '01/03/2025',
-			'datetime' => '2025-03-01',
-			'image' => 'images/project-viet-han.jpg',
-		),
-		array(
-			'title' => 'Review phố Ngụy Như Kon Tum — “Phố chung cư” quận Thanh Xuân',
-			'date' => '25/10/2024',
-			'datetime' => '2024-10-25',
-			'image' => 'images/contact-city.webp',
-		),
-		array(
-			'title' => 'Review phố Quan Nhân',
-			'date' => '19/03/2024',
-			'datetime' => '2024-03-19',
-			'image' => 'images/event-opening-2.jpg',
-		),
-	);
-}
-
-function reco_news_link()
-{
-	return home_url('/lien-he/');
+	wp_reset_postdata();
 }
 
 function reco_render_news_list_items($query)
 {
 	while ($query->have_posts()) {
 		$query->the_post();
-		$categories = get_the_category();
-		$category_name = !empty($categories) ? $categories[0]->name : 'Tin tức';
-		$views = get_post_meta(get_the_ID(), 'post_views_count', true);
-		$views = $views ? $views : rand(100, 2000);
-		$thumbnail_url = get_the_post_thumbnail_url() ? get_the_post_thumbnail_url() : reco_asset('images/news-placeholder.jpg');
+		$views = absint(get_post_meta(get_the_ID(), 'post_views_count', true));
+		$thumbnail_url = get_the_post_thumbnail_url();
 		?>
 		<article class="reco-news-list-item" data-reveal>
-			<a class="reco-news-list-item__image" href="<?php echo esc_url(get_permalink()); ?>"
-				aria-label="<?php echo esc_attr(get_the_title()); ?>">
-				<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" width="240"
-					height="160" loading="lazy">
-			</a>
+			<?php if ($thumbnail_url): ?>
+				<a class="reco-news-list-item__image" href="<?php echo esc_url(get_permalink()); ?>"
+					aria-label="<?php echo esc_attr(get_the_title()); ?>">
+					<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" width="240"
+						height="160" loading="lazy">
+				</a>
+			<?php endif; ?>
 			<div class="reco-news-list-item__body">
 				<h2><a href="<?php echo esc_url(get_permalink()); ?>"><?php echo esc_html(get_the_title()); ?></a></h2>
 				<div class="reco-news-list-item__meta">
@@ -713,29 +614,6 @@ function reco_render_news_list_items($query)
 		<?php
 	}
 	wp_reset_postdata();
-}
-
-function reco_render_news_feed_cards($items)
-{
-	foreach ($items as $item) {
-		?>
-		<article class="reco-news-feed-card" data-reveal>
-			<a class="reco-news-feed-card__image" href="<?php echo esc_url(reco_news_link()); ?>"
-				aria-label="<?php echo esc_attr($item['title']); ?>">
-				<img src="<?php echo esc_url(reco_asset($item['image'])); ?>" alt="<?php echo esc_attr($item['title']); ?>"
-					width="640" height="480" loading="lazy">
-			</a>
-			<div class="reco-news-feed-card__body">
-				<span class="reco-news-feed-card__category"><?php echo esc_html($item['category']); ?></span>
-				<h2><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($item['title']); ?></a></h2>
-				<time datetime="<?php echo esc_attr($item['datetime']); ?>"><?php echo esc_html($item['date']); ?></time>
-				<p><?php echo esc_html($item['desc']); ?></p>
-				<a class="reco-news-read-link" href="<?php echo esc_url(reco_news_link()); ?>">Xem thêm <span
-						aria-hidden="true">→</span></a>
-			</div>
-		</article>
-		<?php
-	}
 }
 
 function reco_contact_form()
@@ -795,7 +673,11 @@ function reco_contact_form()
 
 function reco_render_home()
 {
-	$news = array_slice(reco_news_items(), 0, 3);
+	$news_query = new WP_Query(array(
+		'post_type' => 'post',
+		'post_status' => 'publish',
+		'posts_per_page' => 3,
+	));
 	?>
 	<section class="reco-hero" aria-labelledby="reco-home-title">
 		<img class="reco-hero__image" src="<?php echo esc_url(reco_asset('images/hero-home.webp')); ?>"
@@ -864,7 +746,7 @@ function reco_render_home()
 		<div class="reco-container">
 			<?php reco_section_heading('Tin tức & góc nhìn', 'Thông tin rõ ràng cho<br><em>quyết định vững vàng.</em>', 'Cập nhật hoạt động doanh nghiệp, dự án nổi bật và góc nhìn thực tiễn từ đội ngũ RECO.'); ?>
 			<div class="reco-news-grid">
-				<?php reco_render_news_cards($news); ?>
+				<?php reco_render_news_cards($news_query); ?>
 			</div>
 			<div class="reco-section-action"><a class="reco-button reco-button--outline"
 					href="<?php echo esc_url(home_url('/tin-tuc/')); ?>">Xem tất cả tin tức <span
@@ -1094,9 +976,6 @@ function reco_render_news($category = null)
 	$is_category_archive = $category instanceof WP_Term && 'category' === $category->taxonomy;
 	$category_id = $is_category_archive ? (int) $category->term_id : 0;
 	$category_query = $category_id ? array('cat' => $category_id) : array();
-	$news = reco_news_items();
-	$reviews = reco_news_reviews();
-	$categories = reco_news_categories();
 	?>
 	<section class="reco-news-page">
 		<div class="reco-container">
@@ -1133,7 +1012,7 @@ function reco_render_news($category = null)
 								$hl_posts[] = array(
 									'title' => get_the_title(),
 									'link' => get_permalink(),
-									'image' => get_the_post_thumbnail_url() ?: reco_asset('images/news-placeholder.jpg'),
+									'image' => get_the_post_thumbnail_url(),
 									'date_day' => get_the_date('d/m'),
 									'date_year' => get_the_date('Y'),
 									'datetime' => get_the_date('c'),
@@ -1147,9 +1026,11 @@ function reco_render_news($category = null)
 							<article class="reco-news-highlight reco-news-highlight--primary" data-reveal>
 								<a href="<?php echo esc_url($hl_posts[0]['link']); ?>" class="reco-news-highlight__image"
 									aria-label="<?php echo esc_attr($hl_posts[0]['title']); ?>">
-									<img src="<?php echo esc_url($hl_posts[0]['image']); ?>"
-										alt="<?php echo esc_attr($hl_posts[0]['title']); ?>" width="1000" height="670"
-										loading="eager">
+									<?php if ($hl_posts[0]['image']): ?>
+										<img src="<?php echo esc_url($hl_posts[0]['image']); ?>"
+											alt="<?php echo esc_attr($hl_posts[0]['title']); ?>" width="1000" height="670"
+											loading="eager">
+									<?php endif; ?>
 								</a>
 								<div class="reco-news-highlight__content">
 									<time datetime="<?php echo esc_attr($hl_posts[0]['datetime']); ?>">
@@ -1172,9 +1053,11 @@ function reco_render_news($category = null)
 								<article class="reco-news-highlight reco-news-highlight--secondary" data-reveal>
 									<a href="<?php echo esc_url($item['link']); ?>" class="reco-news-highlight__image"
 										aria-label="<?php echo esc_attr($item['title']); ?>">
-										<img src="<?php echo esc_url($item['image']); ?>"
-											alt="<?php echo esc_attr($item['title']); ?>" width="600" height="400"
-											loading="lazy">
+										<?php if ($item['image']): ?>
+											<img src="<?php echo esc_url($item['image']); ?>"
+												alt="<?php echo esc_attr($item['title']); ?>" width="600" height="400"
+												loading="lazy">
+										<?php endif; ?>
 									</a>
 									<div class="reco-news-highlight__content">
 										<time datetime="<?php echo esc_attr($item['datetime']); ?>">
@@ -1238,10 +1121,6 @@ function reco_render_news($category = null)
 									?>
 									<li><a class="<?php echo $is_active_category ? 'is-active' : ''; ?>" href="<?php echo esc_url(get_category_link($cat->term_id)); ?>"<?php echo $is_active_category ? ' aria-current="page"' : ''; ?>><span aria-hidden="true">›</span><?php echo esc_html($cat->name); ?></a></li>
 								<?php endforeach;
-							else:
-								foreach ($categories as $category): ?>
-									<li><a href="#tin-moi"><span aria-hidden="true">›</span><?php echo esc_html($category); ?></a></li>
-								<?php endforeach;
 							endif;
 							?>
 						</ul>
@@ -1263,13 +1142,15 @@ function reco_render_news($category = null)
 							$review_index = 0;
 							while ($review_query->have_posts()):
 								$review_query->the_post();
-								$review_thumb = get_the_post_thumbnail_url() ?: reco_asset('images/news-placeholder.jpg');
+								$review_thumb = get_the_post_thumbnail_url();
 								?>
 								<article class="reco-news-review<?php echo 0 === $review_index ? ' reco-news-review--featured' : ''; ?>">
 									<a class="reco-news-review__image" href="<?php echo esc_url(get_permalink()); ?>"
 										aria-label="<?php echo esc_attr(get_the_title()); ?>">
+									<?php if ($review_thumb): ?>
 										<img src="<?php echo esc_url($review_thumb); ?>"
 											alt="<?php echo esc_attr(get_the_title()); ?>" width="400" height="260" loading="lazy">
+									<?php endif; ?>
 									</a>
 									<div class="reco-news-review__body">
 										<time datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d/m/Y')); ?></time>
@@ -1283,23 +1164,6 @@ function reco_render_news($category = null)
 								$review_index++;
 							endwhile;
 							wp_reset_postdata();
-						elseif (!$is_category_archive):
-							foreach ($reviews as $index => $review): ?>
-								<article class="reco-news-review<?php echo 0 === $index ? ' reco-news-review--featured' : ''; ?>">
-									<a class="reco-news-review__image" href="<?php echo esc_url(reco_news_link()); ?>"
-										aria-label="<?php echo esc_attr($review['title']); ?>">
-										<img src="<?php echo esc_url(reco_asset($review['image'])); ?>"
-											alt="<?php echo esc_attr($review['title']); ?>" width="400" height="260" loading="lazy">
-									</a>
-									<div class="reco-news-review__body">
-										<time datetime="<?php echo esc_attr($review['datetime']); ?>"><?php echo esc_html($review['date']); ?></time>
-										<h3><a href="<?php echo esc_url(reco_news_link()); ?>"><?php echo esc_html($review['title']); ?></a></h3>
-										<?php if (!empty($review['desc'])): ?>
-											<p><?php echo esc_html($review['desc']); ?></p>
-										<?php endif; ?>
-									</div>
-								</article>
-							<?php endforeach;
 						endif;
 						?>
 					</section>
