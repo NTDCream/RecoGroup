@@ -534,7 +534,7 @@ add_shortcode('reco_project_demo', 'reco_project_demo_shortcode');
 function reco_render_news_cards($query)
 {
 	if (!$query instanceof WP_Query || !$query->have_posts()) {
-		echo '<p class="reco-project-demo__empty">Chưa có bài viết nào.</p>';
+		echo '<p class="reco-project-demo__empty">Không còn bài viết nào.</p>';
 		return;
 	}
 
@@ -548,14 +548,15 @@ function reco_render_news_cards($query)
 			<a class="reco-news-card__media" href="<?php echo esc_url(get_permalink()); ?>"
 				aria-label="<?php echo esc_attr(get_the_title()); ?>">
 				<?php if ($thumbnail_url): ?>
-					<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>"
-						width="800" height="560" loading="lazy">
+					<img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" width="800"
+						height="560" loading="lazy">
 				<?php endif; ?>
 				<?php if ($category_name): ?><span><?php echo esc_html($category_name); ?></span><?php endif; ?>
 			</a>
 			<div class="reco-news-card__body">
 				<h3><a href="<?php echo esc_url(get_permalink()); ?>"><?php echo esc_html(get_the_title()); ?></a></h3>
-				<?php if (has_excerpt()): ?><p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 24)); ?></p><?php endif; ?>
+				<?php if (has_excerpt()): ?>
+					<p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 24)); ?></p><?php endif; ?>
 				<a class="reco-text-link" href="<?php echo esc_url(get_permalink()); ?>">Xem thêm
 					<span aria-hidden="true">→</span></a>
 			</div>
@@ -992,7 +993,8 @@ function reco_render_news($category = null)
 			<header class="reco-news-page__header" data-reveal>
 				<span class="reco-eyebrow">Góc nhìn bất động sản</span>
 				<h1><?php echo esc_html($is_category_archive ? $category->name : 'Tin tức'); ?></h1>
-				<p><?php echo esc_html($is_category_archive ? sprintf('Các bài viết mới nhất thuộc danh mục %s.', $category->name) : 'Cập nhật thông tin thị trường, dự án và những câu chuyện đáng chú ý từ RECO.'); ?></p>
+				<p><?php echo esc_html($is_category_archive ? sprintf('Các bài viết mới nhất thuộc danh mục %s.', $category->name) : 'Cập nhật thông tin thị trường, dự án và những câu chuyện đáng chú ý từ RECO.'); ?>
+				</p>
 			</header>
 
 			<div class="reco-news-page__layout">
@@ -1090,7 +1092,7 @@ function reco_render_news($category = null)
 						if ($news_query->have_posts()) {
 							reco_render_news_list_items($news_query);
 						} else {
-							echo '<p style="padding:24px 0;color:var(--reco-muted);text-align:center;">Chưa có bài viết nào.</p>';
+							echo '<p style="padding:24px 0;color:var(--reco-muted);text-align:center;">Không còn bài viết nào.</p>';
 						}
 						?>
 					</div>
@@ -1099,7 +1101,9 @@ function reco_render_news($category = null)
 					if ($total_pages > 1):
 						?>
 						<div class="reco-news-loadmore">
-							<button id="reco-news-loadmore-btn" data-page="1" data-category="<?php echo esc_attr($category_id); ?>" class="reco-button reco-button--ghost">Xem thêm
+							<button id="reco-news-loadmore-btn" data-page="1"
+								data-category="<?php echo esc_attr($category_id); ?>" class="reco-button reco-button--ghost">Xem
+								thêm
 								<span aria-hidden="true">↓</span></button>
 						</div>
 					<?php endif; ?>
@@ -1119,7 +1123,9 @@ function reco_render_news($category = null)
 								foreach ($wp_categories as $cat):
 									$is_active_category = $is_category_archive && $category_id === (int) $cat->term_id;
 									?>
-									<li><a class="<?php echo $is_active_category ? 'is-active' : ''; ?>" href="<?php echo esc_url(get_category_link($cat->term_id)); ?>"<?php echo $is_active_category ? ' aria-current="page"' : ''; ?>><span aria-hidden="true">›</span><?php echo esc_html($cat->name); ?></a></li>
+									<li><a class="<?php echo $is_active_category ? 'is-active' : ''; ?>"
+											href="<?php echo esc_url(get_category_link($cat->term_id)); ?>" <?php echo $is_active_category ? ' aria-current="page"' : ''; ?>><span
+												aria-hidden="true">›</span><?php echo esc_html($cat->name); ?></a></li>
 								<?php endforeach;
 							endif;
 							?>
@@ -1144,17 +1150,21 @@ function reco_render_news($category = null)
 								$review_query->the_post();
 								$review_thumb = get_the_post_thumbnail_url();
 								?>
-								<article class="reco-news-review<?php echo 0 === $review_index ? ' reco-news-review--featured' : ''; ?>">
+								<article
+									class="reco-news-review<?php echo 0 === $review_index ? ' reco-news-review--featured' : ''; ?>">
 									<a class="reco-news-review__image" href="<?php echo esc_url(get_permalink()); ?>"
 										aria-label="<?php echo esc_attr(get_the_title()); ?>">
-									<?php if ($review_thumb): ?>
-										<img src="<?php echo esc_url($review_thumb); ?>"
-											alt="<?php echo esc_attr(get_the_title()); ?>" width="400" height="260" loading="lazy">
-									<?php endif; ?>
+										<?php if ($review_thumb): ?>
+											<img src="<?php echo esc_url($review_thumb); ?>"
+												alt="<?php echo esc_attr(get_the_title()); ?>" width="400" height="260" loading="lazy">
+										<?php endif; ?>
 									</a>
 									<div class="reco-news-review__body">
-										<time datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d/m/Y')); ?></time>
-										<h3><a href="<?php echo esc_url(get_permalink()); ?>"><?php echo esc_html(get_the_title()); ?></a></h3>
+										<time
+											datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d/m/Y')); ?></time>
+										<h3><a
+												href="<?php echo esc_url(get_permalink()); ?>"><?php echo esc_html(get_the_title()); ?></a>
+										</h3>
 										<?php if ($review_index === 0 && has_excerpt()): ?>
 											<p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 18)); ?></p>
 										<?php endif; ?>
@@ -1405,9 +1415,7 @@ function reco_render_contact()
 		<iframe title="Bản đồ văn phòng Nhà Ở Ngay RECO"
 			src="https://maps.google.com/maps?q=19-21%20V%C5%A9%20Tr%E1%BB%8Dng%20Ph%E1%BB%A5ng%2C%20Thanh%20Xu%C3%A2n%2C%20H%C3%A0%20N%E1%BB%99i&z=16&output=embed"
 			width="1600" height="520" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-		<div class="reco-map-section__label"><span>Văn phòng RECO</span><strong>19–21 Vũ Trọng Phụng</strong><a
-				href="https://maps.google.com/?q=19-21+Vũ+Trọng+Phụng+Thanh+Xuân+Hà+Nội" target="_blank" rel="noopener">Mở
-				chỉ đường <span aria-hidden="true">↗</span></a></div>
+
 	</section>
 	<?php
 }
