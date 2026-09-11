@@ -132,7 +132,7 @@ function reco_install_site_content()
 	$pages = array(
 		'trang-chu' => 'Trang chủ',
 		'gioi-thieu' => 'Giới thiệu',
-		'he-thong-san-pham' => 'Hệ thống sản phẩm',
+		'du-an' => 'Dự án',
 		'nha-dat-ban' => 'Nhà đất bán',
 		'tin-tuc' => 'Tin tức',
 		'noi-bo' => 'Nội bộ',

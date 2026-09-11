@@ -58,7 +58,7 @@
 		</svg>
 		<span>Trang chủ</span>
 	</a>
-	<a href="<?php echo esc_url(home_url('/he-thong-san-pham/')); ?>">
+	<a href="<?php echo esc_url(home_url('/du-an/')); ?>">
 		<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true">
 			<path d="M4 20h16M6 20V9l6-4 6 4v11M9 12h2v2H9zm4 0h2v2h-2zM9 16h2v4H9zm4 0h2v4h-2z" fill="none"
 				stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />

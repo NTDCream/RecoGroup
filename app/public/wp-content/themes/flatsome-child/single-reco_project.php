@@ -64,7 +64,7 @@ while ( have_posts() ) :
 			<div class="reco-container">
 				<a href="<?php echo esc_url( home_url( '/' ) ); ?>">Trang chủ</a>
 				<span aria-hidden="true">/</span>
-				<a href="<?php echo esc_url( get_post_type_archive_link( 'reco_project' ) ?: home_url( '/he-thong-san-pham/' ) ); ?>">Dự án</a>
+				<a href="<?php echo esc_url( get_post_type_archive_link( 'reco_project' ) ?: home_url( '/du-an/' ) ); ?>">Dự án</a>
 				<span aria-hidden="true">/</span>
 				<span><?php echo esc_html( $types ? implode( ', ', $types ) : 'Dự án RECO' ); ?></span>
 			</div>
