@@ -368,3 +368,47 @@ function reco_add_cpt_post_names_to_main_query( $query ) {
 	}
 }
 add_action( 'pre_get_posts', 'reco_add_cpt_post_names_to_main_query' );
+
+/**
+ * Create custom role "Sales" based on Author capabilities
+ */
+function reco_add_sales_role() {
+	if ( ! get_role( 'sales' ) ) {
+		$author_role = get_role( 'author' );
+		if ( $author_role ) {
+			add_role( 'sales', 'Sales', $author_role->capabilities );
+		}
+	}
+}
+add_action( 'init', 'reco_add_sales_role' );
+
+/**
+ * Hide specific menus for Sales role
+ */
+function reco_hide_menus_for_sales() {
+	$user = wp_get_current_user();
+	if ( in_array( 'sales', (array) $user->roles ) ) {
+		remove_menu_page( 'edit.php' );                        // Bài viết (Blog)
+		remove_menu_page( 'edit.php?post_type=reco_project' ); // Dự án
+		remove_menu_page( 'edit.php?post_type=reco_job' );     // Tuyển dụng
+		remove_menu_page( 'edit.php?post_type=reco_lead' );    // Khách hàng quan tâm
+	}
+}
+add_action( 'admin_menu', 'reco_hide_menus_for_sales', 999 );
+
+/**
+ * Block direct URL access to restricted post types for Sales role
+ */
+function reco_block_sales_access( $screen ) {
+	$user = wp_get_current_user();
+	if ( in_array( 'sales', (array) $user->roles ) ) {
+		$restricted_types = array( 'reco_project', 'reco_job', 'reco_lead', 'post' );
+		if ( in_array( $screen->post_type, $restricted_types ) ) {
+			wp_safe_redirect( admin_url() );
+			exit;
+		}
+	}
+}
+add_action( 'current_screen', 'reco_block_sales_access' );
+
+require_once get_stylesheet_directory() . '/inc/admin-ajax.php';

@@ -21,6 +21,12 @@ while ( have_posts() ) :
 	$direction_value = reco_project_field( 'reco_sale_direction', $post_id, '' );
 	$map_embed = reco_project_field( 'reco_sale_map', $post_id, '' );
 	$related   = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_sale_project_related', $post_id, array() ) ) ) );
+	$province  = reco_project_field( 'reco_sale_province', $post_id, '' );
+	$commune   = reco_project_field( 'reco_sale_commune', $post_id, '' );
+	$location  = trim( implode( ', ', array_filter( array( $commune, $province ) ) ) );
+	$contact_phone = reco_project_field( 'reco_sale_contact_phone', $post_id, '' );
+	$contact_phone_display = $contact_phone ? $contact_phone : '0934 524 445';
+	$contact_phone_href = preg_replace( '/[^0-9+]/', '', $contact_phone_display );
 
 	/* Price display */
 	$price_value = floatval( reco_project_field( 'reco_sale_price_value', $post_id, 0 ) );
@@ -99,6 +105,12 @@ while ( have_posts() ) :
 				<!-- Title & badges -->
 				<div class="reco-sale-header">
 					<h1><?php the_title(); ?></h1>
+					<?php if ( $location ) : ?>
+					<div class="reco-sale-location" style="display: flex; align-items: center; gap: 8px; color: #555; margin-top: 10px;">
+						<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+						<span><?php echo esc_html( $location ); ?></span>
+					</div>
+					<?php endif; ?>
 				</div>
 
 				<!-- Quick specs -->
@@ -234,9 +246,9 @@ while ( have_posts() ) :
 
 				<!-- Contact card -->
 				<div class="reco-sale-contact-card">
-					<a href="tel:0934524445" class="reco-sale-contact-card__phone">
+					<a href="tel:<?php echo esc_attr( $contact_phone_href ); ?>" class="reco-sale-contact-card__phone">
 						<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-						0934 524 445
+						<?php echo esc_html( $contact_phone_display ); ?>
 					</a>
 					<a href="<?php echo esc_url( home_url( '/lien-he/' ) ); ?>" class="reco-sale-contact-card__email">
 						<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
