@@ -133,6 +133,7 @@ function reco_install_site_content()
 		'trang-chu' => 'Trang chủ',
 		'gioi-thieu' => 'Giới thiệu',
 		'he-thong-san-pham' => 'Hệ thống sản phẩm',
+		'nha-dat-ban' => 'Nhà đất bán',
 		'tin-tuc' => 'Tin tức',
 		'noi-bo' => 'Nội bộ',
 		'tuyen-dung' => 'Tuyển dụng',
@@ -200,6 +201,26 @@ function reco_install_site_content()
 	flush_rewrite_rules(false);
 }
 add_action('init', 'reco_install_site_content', 30);
+
+function reco_ensure_sale_page()
+{
+	if (get_option('reco_sale_page_created')) {
+		return;
+	}
+	$existing = get_page_by_path('nha-dat-ban');
+	if (!$existing) {
+		wp_insert_post(array(
+			'post_title'    => 'Nhà đất bán',
+			'post_name'     => 'nha-dat-ban',
+			'post_status'   => 'publish',
+			'post_type'     => 'page',
+			'post_content'  => '',
+			'comment_status' => 'closed',
+		));
+	}
+	update_option('reco_sale_page_created', '1');
+}
+add_action('init', 'reco_ensure_sale_page', 31);
 
 function reco_contact_redirect($status)
 {
@@ -320,3 +341,30 @@ function reco_ajax_load_more_news() {
 	}
 	wp_die();
 }
+
+/**
+ * Remove 'reco_sale' slug from permalinks for cleaner URLs
+ */
+function reco_remove_sale_slug( $post_link, $post ) {
+	if ( 'reco_sale' === $post->post_type && 'publish' === $post->post_status ) {
+		$post_link = str_replace( '/' . $post->post_type . '/', '/', $post_link );
+	}
+	return $post_link;
+}
+add_filter( 'post_type_link', 'reco_remove_sale_slug', 10, 2 );
+
+/**
+ * Teach WordPress to resolve the root slug for 'reco_sale' posts
+ */
+function reco_add_cpt_post_names_to_main_query( $query ) {
+	if ( ! $query->is_main_query() ) {
+		return;
+	}
+	if ( is_admin() ) {
+		return;
+	}
+	if ( ! empty( $query->query['name'] ) && empty( $query->query['post_type'] ) ) {
+		$query->set( 'post_type', array( 'post', 'page', 'reco_sale' ) );
+	}
+}
+add_action( 'pre_get_posts', 'reco_add_cpt_post_names_to_main_query' );
