@@ -95,8 +95,9 @@ function reco_register_sale_detail_fields()
 					'instructions' => 'Chọn Phường/Xã (sẽ tự động tải khi chọn Tỉnh).',
 					'choices' => array(),
 					'allow_null' => 1,
-					'ui' => 1,
+					'ui' => 0,
 					'ajax' => 0,
+					'placeholder' => 'Chọn Phường/Xã...',
 					'wrapper' => array('width' => 25),
 				),
 				array(
