@@ -301,3 +301,92 @@
 		}
 	});
 })();
+
+(function() {
+	document.addEventListener('DOMContentLoaded', function() {
+		const dropdowns = document.querySelectorAll('.reco-sale-search__dropdown');
+		dropdowns.forEach(function(dropdown) {
+			const selectEl = dropdown.querySelector('select');
+			if (!selectEl) return;
+			
+			// ?n select g?c
+			selectEl.style.display = 'none';
+			
+			// T?o wrapper (display)
+			const displayBox = document.createElement('div');
+			displayBox.className = 'reco-custom-select-display';
+			
+			const selectedOpt = selectEl.options[selectEl.selectedIndex];
+			displayBox.textContent = selectedOpt ? selectedOpt.textContent : selectEl.options[0].textContent;
+			
+			// Thêm mui tên
+			const arrow = document.createElement('span');
+			arrow.className = 'reco-custom-select-arrow';
+			dropdown.appendChild(arrow);
+			
+			dropdown.appendChild(displayBox);
+			
+			// T?o danh sách
+			const optionsList = document.createElement('div');
+			optionsList.className = 'reco-custom-select-options';
+			
+			for (let i = 0; i < selectEl.options.length; i++) {
+				const opt = selectEl.options[i];
+				const item = document.createElement('div');
+				item.textContent = opt.textContent;
+				item.dataset.value = opt.value;
+				if (i === selectEl.selectedIndex) {
+					item.classList.add('selected');
+				}
+				
+				item.addEventListener('click', function(e) {
+					e.stopPropagation();
+					selectEl.value = this.dataset.value;
+					
+					// Trigger native change event
+					const evt = new Event('change');
+					selectEl.dispatchEvent(evt);
+					
+					displayBox.textContent = this.textContent;
+					
+					const siblings = optionsList.children;
+					for (let j = 0; j < siblings.length; j++) {
+						siblings[j].classList.remove('selected');
+					}
+					this.classList.add('selected');
+					
+					optionsList.classList.remove('show');
+					dropdown.classList.remove('active');
+				});
+				optionsList.appendChild(item);
+			}
+			
+			dropdown.appendChild(optionsList);
+			
+			// Event m? danh sách
+			dropdown.addEventListener('click', function(e) {
+				e.stopPropagation();
+				
+				// Ðóng các select khác
+				document.querySelectorAll('.reco-custom-select-options.show').forEach(function(list) {
+					if (list !== optionsList) {
+						list.classList.remove('show');
+						list.parentElement.classList.remove('active');
+					}
+				});
+				
+				optionsList.classList.toggle('show');
+				dropdown.classList.toggle('active');
+			});
+		});
+		
+		// Ðóng khi click ngoài
+		document.addEventListener('click', function() {
+			document.querySelectorAll('.reco-custom-select-options.show').forEach(function(list) {
+				list.classList.remove('show');
+				list.parentElement.classList.remove('active');
+			});
+		});
+	});
+})();
+

@@ -7,12 +7,56 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 ?>
 <main class="reco-sale-archive" id="main-content">
-	<header class="reco-sale-archive__hero">
+	<section class="reco-sale-search-wrap" style="padding-top: 120px;">
 		<div class="reco-container">
-			<span class="reco-eyebrow reco-eyebrow--light">Nhà đất bán</span>
-			<h1>Danh sách<br><em>tin rao bán.</em></h1>
+			<form class="reco-sale-search-bar" action="<?php echo esc_url(get_post_type_archive_link('reco_sale')); ?>" method="get">
+				<div class="reco-sale-search__keyword">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+					<input type="text" name="tu-khoa" placeholder="Nhập từ khóa tìm kiếm" value="<?php echo esc_attr(isset($_GET['tu-khoa']) ? sanitize_text_field(wp_unslash($_GET['tu-khoa'])) : ''); ?>">
+				</div>
+
+				<div class="reco-sale-search__filters">
+					<div class="reco-sale-search__dropdown">
+						<label for="search-tinh-thanh">Tỉnh/Thành</label>
+						<select name="tinh-thanh" id="search-tinh-thanh">
+							<option value="">Tất cả</option>
+							<option value="ha-noi" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'ha-noi'); ?>>Hà Nội</option>
+							<option value="ho-chi-minh" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'ho-chi-minh'); ?>>Hồ Chí Minh</option>
+							<option value="da-nang" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'da-nang'); ?>>Đà Nẵng</option>
+						</select>
+					</div>
+
+					<div class="reco-sale-search__dropdown">
+						<label for="search-quan-huyen">Quận/Huyện</label>
+						<select name="quan-huyen" id="search-quan-huyen">
+							<option value="">Tất cả</option>
+						</select>
+					</div>
+
+					<div class="reco-sale-search__dropdown">
+						<label for="search-muc-gia">Mức giá</label>
+						<select name="muc-gia" id="search-muc-gia">
+							<option value="">Tất cả</option>
+							<option value="duoi-2-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', 'duoi-2-ty'); ?>>Dưới 2 tỷ</option>
+							<option value="2-3-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', '2-3-ty'); ?>>2 - 3 tỷ</option>
+							<option value="3-5-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', '3-5-ty'); ?>>3 - 5 tỷ</option>
+							<option value="tren-5-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', 'tren-5-ty'); ?>>Trên 5 tỷ</option>
+						</select>
+					</div>
+
+					<button type="submit" class="reco-sale-search__submit" aria-label="Tìm kiếm">
+						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="11" cy="11" r="8"></circle>
+							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+						</svg>
+					</button>
+				</div>
+			</form>
 		</div>
-	</header>
+	</section>
 
 	<section class="reco-section reco-sale-archive__results">
 		<div class="reco-container">
@@ -59,8 +103,8 @@ get_header();
 				<?php the_posts_pagination( array( 'mid_size' => 1, 'prev_text' => '← Trước', 'next_text' => 'Sau →' ) ); ?>
 			<?php else : ?>
 				<div class="reco-sale-archive__empty">
-					<h2>Chưa có tin rao bán nào</h2>
-					<p>Hãy quay lại sau để xem các tin đăng mới nhất.</p>
+					<h2>Không có kết quả phù hợp</h2>
+					<p>Hãy thử thay đổi tiêu chí tìm kiếm hoặc quay lại sau để xem các tin đăng mới nhất.</p>
 				</div>
 			<?php endif; ?>
 		</div>

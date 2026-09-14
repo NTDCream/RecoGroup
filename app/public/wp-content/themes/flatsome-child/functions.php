@@ -412,3 +412,67 @@ function reco_block_sales_access( $screen ) {
 add_action( 'current_screen', 'reco_block_sales_access' );
 
 require_once get_stylesheet_directory() . '/inc/admin-ajax.php';
+
+/**
+ * Filter for "Tin rao bán" search.
+ */
+function reco_filter_sale_archive($query) {
+	if (is_admin() || !$query->is_main_query() || !$query->is_post_type_archive('reco_sale')) {
+		return;
+	}
+
+	$tu_khoa = isset($_GET['tu-khoa']) ? sanitize_text_field(wp_unslash($_GET['tu-khoa'])) : '';
+	$tinh_thanh = isset($_GET['tinh-thanh']) ? sanitize_key(wp_unslash($_GET['tinh-thanh'])) : '';
+	$quan_huyen = isset($_GET['quan-huyen']) ? sanitize_key(wp_unslash($_GET['quan-huyen'])) : '';
+	$muc_gia = isset($_GET['muc-gia']) ? sanitize_key(wp_unslash($_GET['muc-gia'])) : '';
+
+	$meta_query = array('relation' => 'AND');
+
+	if ($tu_khoa) {
+		$query->set('s', $tu_khoa);
+	}
+
+	if ($tinh_thanh) {
+		$meta_query[] = array('key' => 'reco_sale_province', 'value' => $tinh_thanh, 'compare' => '=');
+	}
+
+	if ($quan_huyen) {
+		$meta_query[] = array('key' => 'reco_sale_commune', 'value' => $quan_huyen, 'compare' => '=');
+	}
+
+	if ($muc_gia) {
+		$price_query = array('relation' => 'AND');
+		if ($muc_gia === 'duoi-2-ty') {
+			$price_query[] = array('key' => 'reco_sale_price_value', 'value' => 2, 'compare' => '<', 'type' => 'DECIMAL(10,2)');
+			$price_query[] = array('key' => 'reco_sale_price_unit', 'value' => 'ty', 'compare' => '=');
+		} elseif ($muc_gia === '2-3-ty') {
+			$price_query[] = array('key' => 'reco_sale_price_value', 'value' => array(2, 3), 'compare' => 'BETWEEN', 'type' => 'DECIMAL(10,2)');
+			$price_query[] = array('key' => 'reco_sale_price_unit', 'value' => 'ty', 'compare' => '=');
+		} elseif ($muc_gia === '3-5-ty') {
+			$price_query[] = array('key' => 'reco_sale_price_value', 'value' => array(3, 5), 'compare' => 'BETWEEN', 'type' => 'DECIMAL(10,2)');
+			$price_query[] = array('key' => 'reco_sale_price_unit', 'value' => 'ty', 'compare' => '=');
+		} elseif ($muc_gia === 'tren-5-ty') {
+			$price_query[] = array('key' => 'reco_sale_price_value', 'value' => 5, 'compare' => '>=', 'type' => 'DECIMAL(10,2)');
+			$price_query[] = array('key' => 'reco_sale_price_unit', 'value' => 'ty', 'compare' => '=');
+		}
+		if (count($price_query) > 1) {
+			$meta_query[] = $price_query;
+		}
+	}
+
+	if (count($meta_query) > 1) {
+		$query->set('meta_query', $meta_query);
+	}
+}
+add_action('pre_get_posts', 'reco_filter_sale_archive');
+
+/**
+ * Enable archive for reco_sale custom post type
+ */
+add_filter('register_post_type_args', 'reco_enable_sale_archive_args', 10, 2);
+function reco_enable_sale_archive_args($args, $post_type) {
+    if ($post_type === 'reco_sale') {
+        $args['has_archive'] = 'nha-dat-ban';
+    }
+    return $args;
+}
