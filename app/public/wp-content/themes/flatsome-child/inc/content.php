@@ -680,54 +680,20 @@ function reco_render_home()
 		'posts_per_page' => 3,
 	));
 	?>
-	<section class="reco-sale-search-wrap">
-		<div class="reco-container">
-			<form class="reco-sale-search-bar" action="<?php echo esc_url(get_post_type_archive_link('reco_sale')); ?>" method="get">
-				<div class="reco-sale-search__keyword">
-					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<circle cx="11" cy="11" r="8"></circle>
-						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-					</svg>
-					<input type="text" name="tu-khoa" placeholder="Nhập từ khóa tìm kiếm" value="<?php echo esc_attr(isset($_GET['tu-khoa']) ? sanitize_text_field(wp_unslash($_GET['tu-khoa'])) : ''); ?>">
-				</div>
-
-				<div class="reco-sale-search__filters">
-					<div class="reco-sale-search__dropdown">
-						<label for="search-tinh-thanh">Tỉnh/Thành</label>
-						<select name="tinh-thanh" id="search-tinh-thanh">
-							<option value="">Tất cả</option>
-							<option value="ha-noi" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'ha-noi'); ?>>Hà Nội</option>
-							<option value="ho-chi-minh" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'ho-chi-minh'); ?>>Hồ Chí Minh</option>
-							<option value="da-nang" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'da-nang'); ?>>Đà Nẵng</option>
-						</select>
-					</div>
-
-					<div class="reco-sale-search__dropdown">
-						<label for="search-quan-huyen">Quận/Huyện</label>
-						<select name="quan-huyen" id="search-quan-huyen">
-							<option value="">Tất cả</option>
-						</select>
-					</div>
-
-					<div class="reco-sale-search__dropdown">
-						<label for="search-muc-gia">Mức giá</label>
-						<select name="muc-gia" id="search-muc-gia">
-							<option value="">Tất cả</option>
-							<option value="duoi-2-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', 'duoi-2-ty'); ?>>Dưới 2 tỷ</option>
-							<option value="2-3-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', '2-3-ty'); ?>>2 - 3 tỷ</option>
-							<option value="3-5-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', '3-5-ty'); ?>>3 - 5 tỷ</option>
-							<option value="tren-5-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', 'tren-5-ty'); ?>>Trên 5 tỷ</option>
-						</select>
-					</div>
-
-					<button type="submit" class="reco-sale-search__submit" aria-label="Tìm kiếm">
-						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<circle cx="11" cy="11" r="8"></circle>
-							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-						</svg>
-					</button>
-				</div>
-			</form>
+	<section class="reco-hero" aria-labelledby="reco-home-title">
+		<img class="reco-hero__image" src="<?php echo esc_url(reco_asset('images/hero-home.webp')); ?>"
+			alt="Phối cảnh dự án bất động sản hiện đại tại Hà Nội" width="1920" height="960" fetchpriority="high">
+		<div class="reco-hero__shade" aria-hidden="true"></div>
+		<div class="reco-container reco-hero__content">
+			<span class="reco-hero__eyebrow">Nhà Ở Ngay RECO</span>
+			<h1 id="reco-home-title"><span>Kiến tạo điểm đến an cư</span><span>Định hình giá trị thịnh vượng</span></h1>
+			<p>Giải pháp bất động sản minh bạch, toàn diện cho nhu cầu an cư và đầu tư.</p>
+			<div class="reco-hero__actions">
+				<a class="reco-button reco-button--orange" href="<?php echo esc_url(home_url('/du-an/')); ?>">Khám phá sản
+					phẩm <span aria-hidden="true"> </span></a>
+				<a class="reco-button reco-button--ghost" href="<?php echo esc_url(home_url('/gioi-thieu/')); ?>">Về
+					RECO</a>
+			</div>
 		</div>
 	</section>
 
