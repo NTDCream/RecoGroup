@@ -426,10 +426,31 @@ function reco_filter_sale_archive($query) {
 	$quan_huyen = isset($_GET['quan-huyen']) ? sanitize_key(wp_unslash($_GET['quan-huyen'])) : '';
 	$muc_gia = isset($_GET['muc-gia']) ? sanitize_key(wp_unslash($_GET['muc-gia'])) : '';
 
+	$hinh_thuc = isset($_GET['hinh-thuc']) ? sanitize_key(wp_unslash($_GET['hinh-thuc'])) : '';
+	$loai_hinh = isset($_GET['loai-hinh']) ? sanitize_key(wp_unslash($_GET['loai-hinh'])) : '';
+
 	$meta_query = array('relation' => 'AND');
 
 	if ($tu_khoa) {
 		$query->set('s', $tu_khoa);
+	}
+
+	if ($hinh_thuc) {
+		$meta_query[] = array('key' => 'reco_sale_transaction', 'value' => $hinh_thuc, 'compare' => '=');
+	}
+
+	if ($loai_hinh) {
+		if ($hinh_thuc === 'mua-ban') {
+			$meta_query[] = array('key' => 'reco_sale_type_sale', 'value' => $loai_hinh, 'compare' => '=');
+		} elseif ($hinh_thuc === 'cho-thue') {
+			$meta_query[] = array('key' => 'reco_sale_type_rent', 'value' => $loai_hinh, 'compare' => '=');
+		} else {
+			$meta_query[] = array(
+				'relation' => 'OR',
+				array('key' => 'reco_sale_type_sale', 'value' => $loai_hinh, 'compare' => '='),
+				array('key' => 'reco_sale_type_rent', 'value' => $loai_hinh, 'compare' => '=')
+			);
+		}
 	}
 
 	if ($tinh_thanh) {

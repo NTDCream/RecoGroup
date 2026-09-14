@@ -1526,3 +1526,145 @@ function reco_render_page($slug)
 	call_user_func($renderers[$slug]);
 	return true;
 }
+
+/**
+ * Render search bar cho Tin rao bán
+ */
+function reco_render_sale_search_form( $padding_top = '120px', $margin_bottom = '0' ) {
+	?>
+	<section class="reco-sale-search-wrap" style="padding-top: <?php echo esc_attr( $padding_top ); ?>; margin-bottom: <?php echo esc_attr( $margin_bottom ); ?>;">
+		<div class="reco-container">
+			<form class="reco-sale-search-bar" action="<?php echo esc_url(get_post_type_archive_link('reco_sale')); ?>" method="get">
+				<div class="reco-sale-search__keyword">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+					<input type="text" name="tu-khoa" placeholder="Nhập từ khóa tìm kiếm" value="<?php echo esc_attr(isset($_GET['tu-khoa']) ? sanitize_text_field(wp_unslash($_GET['tu-khoa'])) : ''); ?>">
+				</div>
+
+				<div class="reco-sale-search__filters">
+					<div class="reco-sale-search__dropdown">
+						<label for="search-hinh-thuc">Hình thức</label>
+						<select name="hinh-thuc" id="search-hinh-thuc">
+							<option value="mua-ban" <?php selected(!isset($_GET['hinh-thuc']) || $_GET['hinh-thuc'] === 'mua-ban'); ?>>Mua bán</option>
+							<option value="cho-thue" <?php selected(isset($_GET['hinh-thuc']) && $_GET['hinh-thuc'] === 'cho-thue'); ?>>Cho thuê</option>
+						</select>
+					</div>
+
+					<div class="reco-sale-search__dropdown">
+						<label for="search-loai-hinh">Loại hình</label>
+						<select name="loai-hinh" id="search-loai-hinh">
+							<option value="">Tất cả</option>
+							<optgroup label="Mua bán">
+								<option value="can-ho-chung-cu" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'can-ho-chung-cu'); ?>>Căn hộ chung cư</option>
+								<option value="nha-rieng" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'nha-rieng'); ?>>Nhà riêng</option>
+								<option value="biet-thu-lien-ke" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'biet-thu-lien-ke'); ?>>Biệt thự liền kề</option>
+								<option value="dat-nen-tho-cu" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'dat-nen-tho-cu'); ?>>Đất nền thổ cư</option>
+								<option value="kho-bai-nha-xuong" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'kho-bai-nha-xuong'); ?>>Kho bãi nhà xưởng</option>
+								<option value="phan-lo" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'phan-lo'); ?>>Phân lô</option>
+							</optgroup>
+							<optgroup label="Cho thuê">
+								<option value="van-phong" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'van-phong'); ?>>Văn phòng</option>
+								<option value="kho-nha-xuong" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'kho-nha-xuong'); ?>>Kho - nhà xưởng</option>
+								<option value="mat-bang-kinh-doanh" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'mat-bang-kinh-doanh'); ?>>Mặt bằng kinh doanh</option>
+								<option value="nha-mat-pho" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'nha-mat-pho'); ?>>Nhà mặt phố</option>
+								<option value="chung-cu-mini" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'chung-cu-mini'); ?>>Chung cư mini</option>
+								<option value="shophouse-pho-thuong-mai" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'shophouse-pho-thuong-mai'); ?>>Shophouse - phố thương mại</option>
+								<option value="nha-tro" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'nha-tro'); ?>>Nhà trọ</option>
+								<option value="cua-hang-ki-ot" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'cua-hang-ki-ot'); ?>>Cửa hàng - ki ốt</option>
+								<option value="loai-bds-khac" <?php selected(isset($_GET['loai-hinh']) ? $_GET['loai-hinh'] : '', 'loai-bds-khac'); ?>>Loại bđs khác</option>
+							</optgroup>
+						</select>
+					</div>
+
+					<div class="reco-sale-search__dropdown">
+						<label for="search-tinh-thanh">Tỉnh/Thành</label>
+						<select name="tinh-thanh" id="search-tinh-thanh">
+							<option value="">Tất cả</option>
+							<option value="ha-noi" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'ha-noi'); ?>>Hà Nội</option>
+							<option value="ho-chi-minh" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'ho-chi-minh'); ?>>Hồ Chí Minh</option>
+							<option value="da-nang" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'da-nang'); ?>>Đà Nẵng</option>
+						</select>
+					</div>
+
+					<div class="reco-sale-search__dropdown">
+						<label for="search-quan-huyen">Quận/Huyện</label>
+						<select name="quan-huyen" id="search-quan-huyen">
+							<option value="">Tất cả</option>
+						</select>
+					</div>
+
+					<div class="reco-sale-search__dropdown">
+						<label for="search-muc-gia">Mức giá</label>
+						<select name="muc-gia" id="search-muc-gia">
+							<option value="">Tất cả</option>
+							<option value="duoi-2-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', 'duoi-2-ty'); ?>>Dưới 2 tỷ</option>
+							<option value="2-3-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', '2-3-ty'); ?>>2 - 3 tỷ</option>
+							<option value="3-5-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', '3-5-ty'); ?>>3 - 5 tỷ</option>
+							<option value="tren-5-ty" <?php selected(isset($_GET['muc-gia']) ? $_GET['muc-gia'] : '', 'tren-5-ty'); ?>>Trên 5 tỷ</option>
+						</select>
+					</div>
+
+					<button type="submit" class="reco-sale-search__submit" aria-label="Tìm kiếm">
+						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="11" cy="11" r="8"></circle>
+							<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+						</svg>
+					</button>
+				</div>
+			</form>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render sale cards for loop/slider
+ */
+function reco_render_sale_cards( $query, $slider = false ) {
+	if ( ! $query->have_posts() ) return;
+	while ( $query->have_posts() ) {
+		$query->the_post();
+		$sale_id   = get_the_ID();
+		$bedrooms  = reco_project_field( 'reco_sale_bedrooms', $sale_id, '' );
+		$bathrooms = reco_project_field( 'reco_sale_bathrooms', $sale_id, '' );
+		$area      = floatval( reco_project_field( 'reco_sale_area', $sale_id, 0 ) );
+		$transaction = reco_project_field( 'reco_sale_transaction', $sale_id, 'mua-ban' );
+		$price_val = floatval( reco_project_field( 'reco_sale_price_value', $sale_id, 0 ) );
+		$price_unit = reco_project_field( 'reco_sale_price_unit', $sale_id, 'ty' );
+		if ( 'cho-thue' === $transaction ) {
+			$unit_text = 'triệu/tháng';
+		} else {
+			$unit_text = ( 'trieu' === $price_unit ) ? 'triệu' : 'tỷ';
+		}
+		$price_text = $price_val ? number_format( $price_val, ( fmod( $price_val, 1 ) ? 1 : 0 ), '.', '.' ) . ' ' . $unit_text : 'Liên hệ';
+		$gallery = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_sale_gallery', $sale_id, array() ) ) ) );
+		$thumb_id = $gallery ? $gallery[0] : get_post_thumbnail_id( $sale_id );
+		
+		if ( $slider ) { echo '<div class="col large-3 medium-4 small-12" style="padding-bottom: 0;">'; }
+		?>
+		<article class="reco-sale-card">
+			<a class="reco-sale-card__media" href="<?php the_permalink(); ?>" aria-label="Xem <?php the_title_attribute(); ?>">
+				<?php if ( $thumb_id ) : ?>
+					<?php echo wp_get_attachment_image( $thumb_id, 'medium_large', false, array( 'loading' => 'lazy' ) ); ?>
+				<?php else : ?>
+					<span class="reco-sale-card__placeholder"></span>
+				<?php endif; ?>
+				<span class="reco-sale-card__price-badge"><?php echo esc_html( $price_text ); ?></span>
+			</a>
+			<div class="reco-sale-card__body">
+				<h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+				<div class="reco-sale-card__meta">
+					<?php if ( $area ) : ?><span><?php echo esc_html( $area ); ?>m²</span><?php endif; ?>
+					<?php if ( $bedrooms !== '' ) : ?><span><?php echo esc_html( $bedrooms ); ?> PN</span><?php endif; ?>
+					<?php if ( $bathrooms !== '' ) : ?><span><?php echo esc_html( $bathrooms ); ?> WC</span><?php endif; ?>
+				</div>
+				<p class="reco-sale-card__date"><?php echo esc_html( get_the_date( 'd/m/Y' ) ); ?></p>
+			</div>
+		</article>
+		<?php
+		if ( $slider ) { echo '</div>'; }
+	}
+	wp_reset_postdata();
+}

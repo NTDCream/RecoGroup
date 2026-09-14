@@ -6025,8 +6025,7 @@ body.single-reco_sale .reco-footer-cta {
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	flex-grow: 1;
-	min-width: 260px;
+	width: 260px;
 	background: #f5f6f8;
 	border-radius: 4px;
 	padding: 0 16px;
@@ -6057,8 +6056,9 @@ body.single-reco_sale .reco-footer-cta {
 .reco-sale-search__filters {
 	display: flex;
 	align-items: center;
-	gap: 32px;
+	gap: 20px;
 	flex-wrap: wrap;
+	flex-grow: 1;
 }
 
 .reco-sale-search__dropdown {
@@ -6069,8 +6069,9 @@ body.single-reco_sale .reco-footer-cta {
 	border: 1.5px solid transparent;
 	border-radius: 6px;
 	transition: border-color 0.2s;
-	margin: -6px -12px;
+	margin: -6px 0;
 	cursor: pointer;
+	flex-grow: 1;
 }
 
 .reco-sale-search__dropdown:hover,
