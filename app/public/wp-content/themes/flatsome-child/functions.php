@@ -428,6 +428,7 @@ function reco_filter_sale_archive($query) {
 
 	$hinh_thuc = isset($_GET['hinh-thuc']) ? sanitize_key(wp_unslash($_GET['hinh-thuc'])) : '';
 	$loai_hinh = isset($_GET['loai-hinh']) ? sanitize_key(wp_unslash($_GET['loai-hinh'])) : '';
+	$sap_xep   = isset($_GET['sap-xep']) ? sanitize_key(wp_unslash($_GET['sap-xep'])) : 'moi-nhat';
 
 	$meta_query = array('relation' => 'AND');
 
@@ -483,6 +484,31 @@ function reco_filter_sale_archive($query) {
 
 	if (count($meta_query) > 1) {
 		$query->set('meta_query', $meta_query);
+	}
+
+	// Xử lý sắp xếp
+	if ($sap_xep === 'gia-tang') {
+		$query->set('orderby', 'meta_value_num');
+		$query->set('meta_key', 'reco_sale_price_value');
+		$query->set('order', 'ASC');
+	} elseif ($sap_xep === 'gia-giam') {
+		$query->set('orderby', 'meta_value_num');
+		$query->set('meta_key', 'reco_sale_price_value');
+		$query->set('order', 'DESC');
+	} elseif ($sap_xep === 'gia-thoa-thuan') {
+		// Giá thỏa thuận (value = 0)
+		$existing_meta_query = $query->get('meta_query') ? $query->get('meta_query') : array();
+		$existing_meta_query[] = array(
+			'key' => 'reco_sale_price_value',
+			'value' => 0,
+			'compare' => '=',
+			'type' => 'DECIMAL(10,2)'
+		);
+		$query->set('meta_query', $existing_meta_query);
+	} else {
+		// Mặc định mới nhất
+		$query->set('orderby', 'date');
+		$query->set('order', 'DESC');
 	}
 }
 add_action('pre_get_posts', 'reco_filter_sale_archive');

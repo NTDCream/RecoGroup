@@ -6189,3 +6189,216 @@ body.single-reco_sale .reco-footer-cta {
 		margin-left: 0 !important;
 	}
 }
+
+/* AJAX Loading State */
+#reco-sale-results-container {
+	transition: opacity 0.3s ease;
+}
+
+#reco-sale-results-container.is-loading {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+/* Sort Dropdown */
+.reco-sale-archive__results-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+.reco-sale-archive__results-title {
+	display: flex;
+	align-items: baseline;
+	gap: 16px;
+}
+
+.reco-sale-archive__results-title span {
+	white-space: nowrap;
+}
+
+.reco-sale-archive__results-title h2 {
+	margin-bottom: 0;
+	white-space: nowrap;
+}
+
+.reco-sale-archive__results-sort {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.reco-sale-archive__results-sort label {
+	color: #666;
+	margin: 0;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.reco-sale-archive__results-sort select {
+	min-width: 180px;
+	height: 40px;
+	padding: 0 12px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background-color: #fff;
+	color: #333;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+/* List Layout for Sale Cards */
+.reco-sale-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.reco-sale-card--list {
+	display: flex;
+	flex-direction: row;
+	background: #fff;
+	border: 1px solid #eee;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+	transition: all 0.3s ease;
+}
+
+.reco-sale-card--list:hover {
+	box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.reco-sale-card--list .reco-sale-card__media {
+	width: 320px;
+	flex-shrink: 0;
+	position: relative;
+	display: block;
+}
+
+.reco-sale-card--list .reco-sale-card__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.reco-sale-card--list .reco-sale-card__badge-fav {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	background: rgba(0,0,0,0.5);
+	color: #fff;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 2;
+}
+
+.reco-sale-card--list .reco-sale-card__badge-status {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	background: #555;
+	color: #fff;
+	padding: 4px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	z-index: 2;
+}
+
+.reco-sale-card--list .reco-sale-card__media-stats {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+	color: #fff;
+	padding: 20px 12px 10px;
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+	font-size: 13px;
+	z-index: 2;
+}
+
+.reco-sale-card--list .reco-sale-card__media-stats span {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.reco-sale-card--list .reco-sale-card__media-stats span:not(:last-child)::after {
+	content: "|";
+	margin-left: 12px;
+	color: rgba(255, 255, 255, 0.7);
+	font-weight: 300;
+}
+
+.reco-sale-card--list .reco-sale-card__body {
+	padding: 20px;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.reco-sale-card--list .reco-sale-card__body h3 {
+	margin: 0 0 10px;
+	font-size: 18px;
+	line-height: 1.4;
+}
+
+.reco-sale-card--list .reco-sale-card__body h3 a {
+	color: #333;
+	text-decoration: none;
+}
+
+.reco-sale-card--list .reco-sale-card__location {
+	color: #777;
+	font-size: 13px;
+	margin-bottom: 8px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.reco-sale-card--list .reco-sale-card__type {
+	color: #f7941d;
+	font-size: 13px;
+	margin-bottom: 12px;
+}
+
+.reco-sale-card--list .reco-sale-card__excerpt {
+	color: #444;
+	font-size: 14px;
+	line-height: 1.5;
+	margin-bottom: 15px;
+	flex-grow: 1;
+}
+
+.reco-sale-card--list .reco-sale-card__price {
+	font-size: 14px;
+	color: #333;
+	border-top: 1px solid #eee;
+	padding-top: 15px;
+}
+
+.reco-sale-card--list .reco-sale-card__price strong {
+	color: #0073e6;
+	font-size: 20px;
+}
+
+@media (max-width: 767px) {
+	.reco-sale-card--list {
+		flex-direction: column;
+	}
+	.reco-sale-card--list .reco-sale-card__media {
+		width: 100%;
+		height: 200px;
+	}
+}

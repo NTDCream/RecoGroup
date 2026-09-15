@@ -1438,47 +1438,26 @@ function reco_render_sale_listings()
 		</header>
 
 		<section class="reco-section reco-sale-archive__results">
-			<div class="reco-container">
+			<div class="reco-container" id="reco-sale-results-container">
 				<div class="reco-sale-archive__results-head">
-					<h2>Kết quả</h2>
-					<span><?php echo esc_html(sprintf('%s tin đăng', (int) $query->found_posts)); ?></span>
+					<div class="reco-sale-archive__results-title">
+						<h2>Kết quả</h2>
+						<span><?php echo esc_html(sprintf('có %s sản phẩm', (int) $query->found_posts)); ?></span>
+					</div>
+					<div class="reco-sale-archive__results-sort">
+						<label for="reco-sale-sort">Sắp xếp theo:</label>
+						<select id="reco-sale-sort" name="sap-xep">
+							<option value="moi-nhat" <?php selected(isset($_GET['sap-xep']) ? $_GET['sap-xep'] : '', 'moi-nhat'); ?>>Mới nhất</option>
+							<option value="gia-tang" <?php selected(isset($_GET['sap-xep']) ? $_GET['sap-xep'] : '', 'gia-tang'); ?>>Giá tăng dần</option>
+							<option value="gia-giam" <?php selected(isset($_GET['sap-xep']) ? $_GET['sap-xep'] : '', 'gia-giam'); ?>>Giá giảm dần</option>
+							<option value="gia-thoa-thuan" <?php selected(isset($_GET['sap-xep']) ? $_GET['sap-xep'] : '', 'gia-thoa-thuan'); ?>>Giá thỏa thuận</option>
+						</select>
+					</div>
 				</div>
 
 				<?php if ($query->have_posts()): ?>
 					<div class="reco-sale-grid">
-						<?php while ($query->have_posts()):
-							$query->the_post();
-							$sale_id = get_the_ID();
-							$bedrooms = absint(reco_project_field('reco_sale_bedrooms', $sale_id, 0));
-							$bathrooms = absint(reco_project_field('reco_sale_bathrooms', $sale_id, 0));
-							$area = floatval(reco_project_field('reco_sale_area', $sale_id, 0));
-							$price_val = floatval(reco_project_field('reco_sale_price_value', $sale_id, 0));
-							$price_unit = reco_project_field('reco_sale_price_unit', $sale_id, 'ty');
-							$price_text = $price_val ? number_format($price_val, (fmod($price_val, 1) ? 1 : 0), '.', '.') . ' ' . ('trieu' === $price_unit ? 'triệu' : 'tỷ') : 'Liên hệ';
-							$gallery = array_values(array_filter(array_map('absint', (array) reco_project_field('reco_sale_gallery', $sale_id, array()))));
-							$thumb_id = $gallery ? $gallery[0] : get_post_thumbnail_id($sale_id);
-							?>
-							<article class="reco-sale-card">
-								<a class="reco-sale-card__media" href="<?php the_permalink(); ?>"
-									aria-label="Xem <?php the_title_attribute(); ?>">
-									<?php if ($thumb_id): ?>
-										<?php echo wp_get_attachment_image($thumb_id, 'medium_large', false, array('loading' => 'lazy')); ?>
-									<?php else: ?>
-										<span class="reco-sale-card__placeholder"></span>
-									<?php endif; ?>
-									<span class="reco-sale-card__price-badge"><?php echo esc_html($price_text); ?></span>
-								</a>
-								<div class="reco-sale-card__body">
-									<h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-									<div class="reco-sale-card__meta">
-										<?php if ($area): ?><span><?php echo esc_html($area); ?>m²</span><?php endif; ?>
-										<?php if ($bedrooms): ?><span><?php echo esc_html($bedrooms); ?> PN</span><?php endif; ?>
-										<?php if ($bathrooms): ?><span><?php echo esc_html($bathrooms); ?> WC</span><?php endif; ?>
-									</div>
-									<p class="reco-sale-card__date"><?php echo esc_html(get_the_date('d/m/Y')); ?></p>
-								</div>
-							</article>
-						<?php endwhile; ?>
+						<?php reco_render_sale_cards($query, false); ?>
 					</div>
 					<?php
 					$big = 999999999;
@@ -1642,25 +1621,79 @@ function reco_render_sale_cards( $query, $slider = false ) {
 		$gallery = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_sale_gallery', $sale_id, array() ) ) ) );
 		$thumb_id = $gallery ? $gallery[0] : get_post_thumbnail_id( $sale_id );
 		
-		if ( $slider ) { echo '<div class="col large-3 medium-4 small-12" style="padding-bottom: 0;">'; }
+		$province = reco_project_field('reco_sale_province', $sale_id, '');
+		$commune = reco_project_field('reco_sale_commune', $sale_id, '');
+		$location = trim(implode(', ', array_filter(array($commune, $province))));
+		if (!$location) $location = 'Đang cập nhật';
+
+		$type_field = ($transaction === 'mua-ban') ? 'reco_sale_type_sale' : 'reco_sale_type_rent';
+		$type_val = reco_project_field($type_field, $sale_id, '');
+		$type_labels = array(
+			'can-ho-chung-cu' => 'Căn hộ chung cư',
+			'nha-rieng' => 'Nhà riêng',
+			'biet-thu-lien-ke' => 'Biệt thự liền kề',
+			'dat-nen-tho-cu' => 'Đất nền thổ cư',
+			'kho-bai-nha-xuong' => 'Kho bãi, nhà xưởng'
+		);
+		$type_name = isset($type_labels[$type_val]) ? $type_labels[$type_val] : ucfirst(str_replace('-', ' ', $type_val));
+		$type_label = ($transaction === 'mua-ban' ? 'Bán ' : 'Cho thuê ') . $type_name;
+
+		if ( $slider ) { 
+			echo '<div class="col large-3 medium-4 small-12" style="padding-bottom: 0;">'; 
+			$card_class = 'reco-sale-card';
+		} else {
+			$card_class = 'reco-sale-card reco-sale-card--list';
+		}
 		?>
-		<article class="reco-sale-card">
+		<article class="<?php echo esc_attr($card_class); ?>">
 			<a class="reco-sale-card__media" href="<?php the_permalink(); ?>" aria-label="Xem <?php the_title_attribute(); ?>">
 				<?php if ( $thumb_id ) : ?>
 					<?php echo wp_get_attachment_image( $thumb_id, 'medium_large', false, array( 'loading' => 'lazy' ) ); ?>
 				<?php else : ?>
 					<span class="reco-sale-card__placeholder"></span>
 				<?php endif; ?>
-				<span class="reco-sale-card__price-badge"><?php echo esc_html( $price_text ); ?></span>
+				
+				<?php if (!$slider): ?>
+					<div class="reco-sale-card__badge-status">Mới</div>
+					
+					<div class="reco-sale-card__media-stats">
+						<?php if ( $area ) : ?><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5v11.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><text x="12" y="17" font-size="7" font-weight="bold" text-anchor="middle" stroke="none" fill="currentColor">m²</text></svg> <?php echo esc_html( $area ); ?>m²</span><?php endif; ?>
+						<?php if ( $bedrooms !== '' ) : ?><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v11m0-4h18m0 4v-8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/></svg> <?php echo esc_html( $bedrooms ); ?> PN</span><?php endif; ?>
+						<?php if ( $bathrooms !== '' ) : ?><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h18v4a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-4z"/><path d="M4 13V9"/><path d="M4 4h4v3M9 8l-2 2"/></svg> <?php echo esc_html( $bathrooms ); ?> WC</span><?php endif; ?>
+					</div>
+				<?php else: ?>
+					<span class="reco-sale-card__price-badge"><?php echo esc_html( $price_text ); ?></span>
+				<?php endif; ?>
 			</a>
 			<div class="reco-sale-card__body">
 				<h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-				<div class="reco-sale-card__meta">
-					<?php if ( $area ) : ?><span><?php echo esc_html( $area ); ?>m²</span><?php endif; ?>
-					<?php if ( $bedrooms !== '' ) : ?><span><?php echo esc_html( $bedrooms ); ?> PN</span><?php endif; ?>
-					<?php if ( $bathrooms !== '' ) : ?><span><?php echo esc_html( $bathrooms ); ?> WC</span><?php endif; ?>
-				</div>
-				<p class="reco-sale-card__date"><?php echo esc_html( get_the_date( 'd/m/Y' ) ); ?></p>
+				
+				<?php if ($slider): ?>
+					<div class="reco-sale-card__meta">
+						<?php if ( $area ) : ?><span><?php echo esc_html( $area ); ?>m²</span><?php endif; ?>
+						<?php if ( $bedrooms !== '' ) : ?><span><?php echo esc_html( $bedrooms ); ?> PN</span><?php endif; ?>
+						<?php if ( $bathrooms !== '' ) : ?><span><?php echo esc_html( $bathrooms ); ?> WC</span><?php endif; ?>
+					</div>
+					<p class="reco-sale-card__date"><?php echo esc_html( get_the_date( 'd/m/Y' ) ); ?></p>
+				<?php else: ?>
+					<div class="reco-sale-card__location">
+						<i class="icon-map-marker"></i> <?php echo esc_html($location); ?> 
+						<span>•</span> 
+						<i class="icon-clock"></i> <?php echo esc_html( get_the_date( 'd/m/Y H:i' ) ); ?>
+					</div>
+					
+					<div class="reco-sale-card__type">
+						<?php echo esc_html($type_label); ?>
+					</div>
+
+					<div class="reco-sale-card__excerpt">
+						<?php echo wp_trim_words( get_the_excerpt(), 25, '...' ); ?>
+					</div>
+
+					<div class="reco-sale-card__price">
+						Giá: <strong><?php echo esc_html( $price_text ); ?></strong>
+					</div>
+				<?php endif; ?>
 			</div>
 		</article>
 		<?php

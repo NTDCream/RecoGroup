@@ -10,10 +10,21 @@ get_header();
 	<?php reco_render_sale_search_form(); ?>
 
 	<section class="reco-section reco-sale-archive__results">
-		<div class="reco-container">
+		<div class="reco-container" id="reco-sale-results-container">
 			<div class="reco-sale-archive__results-head">
-				<h2>Kết quả</h2>
-				<span><?php echo esc_html( sprintf( '%s tin đăng', (int) $GLOBALS['wp_query']->found_posts ) ); ?></span>
+				<div class="reco-sale-archive__results-title">
+					<h2>Kết quả</h2>
+					<span><?php echo esc_html( sprintf( 'có %s sản phẩm', (int) $GLOBALS['wp_query']->found_posts ) ); ?></span>
+				</div>
+				<div class="reco-sale-archive__results-sort">
+					<label for="reco-sale-sort">Sắp xếp theo:</label>
+					<select id="reco-sale-sort" name="sap-xep">
+						<option value="moi-nhat" <?php selected(isset($_GET['sap-xep']) ? $_GET['sap-xep'] : '', 'moi-nhat'); ?>>Mới nhất</option>
+						<option value="gia-tang" <?php selected(isset($_GET['sap-xep']) ? $_GET['sap-xep'] : '', 'gia-tang'); ?>>Giá tăng dần</option>
+						<option value="gia-giam" <?php selected(isset($_GET['sap-xep']) ? $_GET['sap-xep'] : '', 'gia-giam'); ?>>Giá giảm dần</option>
+						<option value="gia-thoa-thuan" <?php selected(isset($_GET['sap-xep']) ? $_GET['sap-xep'] : '', 'gia-thoa-thuan'); ?>>Giá thỏa thuận</option>
+					</select>
+				</div>
 			</div>
 
 			<?php if ( have_posts() ) : ?>

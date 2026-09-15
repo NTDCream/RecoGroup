@@ -390,3 +390,124 @@
 	});
 })();
 
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.querySelector('.reco-sale-search-bar');
+        const resultsContainer = document.getElementById('reco-sale-results-container');
+        
+        if (!searchForm || !resultsContainer || typeof recoAjax === 'undefined') return;
+
+        const performSearch = (url, isPushState = true) => {
+            resultsContainer.classList.add('is-loading');
+            
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    resultsContainer.innerHTML = result.data.html;
+                    if (isPushState) {
+                        window.history.pushState({ path: url }, '', url);
+                    }
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => {
+                resultsContainer.classList.remove('is-loading');
+                const offset = resultsContainer.getBoundingClientRect().top + window.scrollY - 100;
+                if (window.scrollY > offset) {
+                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                }
+            });
+        };
+
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(searchForm);
+            
+            const sortSelect = document.getElementById('reco-sale-sort');
+            if (sortSelect) {
+                formData.append('sap-xep', sortSelect.value);
+            }
+
+            const params = new URLSearchParams(formData);
+            params.append('action', 'reco_sale_search');
+            const targetUrl = recoAjax.ajaxurl + '?' + params.toString();
+            
+            const cleanParams = new URLSearchParams(formData);
+            for (const [key, value] of Array.from(cleanParams.entries())) {
+                if (!value) {
+                    cleanParams.delete(key);
+                }
+            }
+            const queryString = cleanParams.toString();
+            const cleanUrl = searchForm.action + (queryString ? '?' + queryString : '');
+            
+            performSearch(targetUrl, false);
+            window.history.pushState({ path: cleanUrl }, '', cleanUrl);
+        });
+
+        const selects = searchForm.querySelectorAll('select');
+        selects.forEach(select => {
+            select.addEventListener('change', () => {
+                searchForm.dispatchEvent(new Event('submit'));
+            });
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'reco-sale-sort') {
+                searchForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        resultsContainer.addEventListener('click', function(e) {
+            const pageLink = e.target.closest('.pagination a');
+            if (pageLink) {
+                e.preventDefault();
+                const url = pageLink.href;
+                
+                const urlObj = new URL(url);
+                const params = new URLSearchParams(urlObj.search);
+                
+                const pathMatches = urlObj.pathname.match(/\/page\/(\d+)/);
+                if (pathMatches && pathMatches[1]) {
+                    params.set('paged', pathMatches[1]);
+                }
+                
+                const sortSelect = document.getElementById('reco-sale-sort');
+                if (sortSelect && !params.has('sap-xep')) {
+                    params.set('sap-xep', sortSelect.value);
+                }
+                
+                params.append('action', 'reco_sale_search');
+                const ajaxUrl = recoAjax.ajaxurl + '?' + params.toString();
+                
+                performSearch(ajaxUrl, false);
+                window.history.pushState({ path: url }, '', url);
+            }
+        });
+
+        window.addEventListener('popstate', function(e) {
+            if (e.state && e.state.path) {
+                const urlObj = new URL(e.state.path, window.location.origin);
+                const params = new URLSearchParams(urlObj.search);
+                
+                const pathMatches = urlObj.pathname.match(/\/page\/(\d+)/);
+                if (pathMatches && pathMatches[1]) {
+                    params.set('paged', pathMatches[1]);
+                }
+                
+                params.append('action', 'reco_sale_search');
+                const ajaxUrl = recoAjax.ajaxurl + '?' + params.toString();
+                
+                performSearch(ajaxUrl, false);
+            } else {
+                window.location.reload();
+            }
+        });
+    });
+})();
