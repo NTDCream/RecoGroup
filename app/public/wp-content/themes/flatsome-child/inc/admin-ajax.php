@@ -126,8 +126,8 @@ function reco_ajax_sale_search() {
 	);
 
 	$tu_khoa    = isset($_REQUEST['tu-khoa']) ? sanitize_text_field(wp_unslash($_REQUEST['tu-khoa'])) : '';
-	$tinh_thanh = isset($_REQUEST['tinh-thanh']) ? sanitize_key(wp_unslash($_REQUEST['tinh-thanh'])) : '';
-	$quan_huyen = isset($_REQUEST['quan-huyen']) ? sanitize_key(wp_unslash($_REQUEST['quan-huyen'])) : '';
+	$tinh_thanh = isset($_REQUEST['tinh-thanh']) ? sanitize_text_field(wp_unslash($_REQUEST['tinh-thanh'])) : '';
+	$quan_huyen = isset($_REQUEST['quan-huyen']) ? sanitize_text_field(wp_unslash($_REQUEST['quan-huyen'])) : '';
 	$muc_gia    = isset($_REQUEST['muc-gia']) ? sanitize_key(wp_unslash($_REQUEST['muc-gia'])) : '';
 	$hinh_thuc  = isset($_REQUEST['hinh-thuc']) ? sanitize_key(wp_unslash($_REQUEST['hinh-thuc'])) : '';
 	$loai_hinh  = isset($_REQUEST['loai-hinh']) ? sanitize_key(wp_unslash($_REQUEST['loai-hinh'])) : '';

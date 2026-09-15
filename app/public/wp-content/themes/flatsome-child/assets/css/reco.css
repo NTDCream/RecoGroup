@@ -6123,8 +6123,10 @@ body.single-reco_sale .reco-footer-cta {
 	border-radius: 6px;
 	box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 	z-index: 99;
-	overflow: hidden;
 	margin-top: 6px;
+	max-height: 250px;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .reco-custom-select-options.show {
@@ -6269,6 +6271,7 @@ body.single-reco_sale .reco-footer-cta {
 
 .reco-sale-card--list:hover {
 	box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+	border-color: #f7941d;
 }
 
 .reco-sale-card--list .reco-sale-card__media {

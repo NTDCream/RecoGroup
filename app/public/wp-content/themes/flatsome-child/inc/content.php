@@ -1561,9 +1561,37 @@ function reco_render_sale_search_form( $padding_top = '120px', $margin_bottom = 
 						<label for="search-tinh-thanh">Tỉnh/Thành</label>
 						<select name="tinh-thanh" id="search-tinh-thanh">
 							<option value="">Tất cả</option>
-							<option value="ha-noi" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'ha-noi'); ?>>Hà Nội</option>
-							<option value="ho-chi-minh" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'ho-chi-minh'); ?>>Hồ Chí Minh</option>
-							<option value="da-nang" <?php selected(isset($_GET['tinh-thanh']) ? $_GET['tinh-thanh'] : '', 'da-nang'); ?>>Đà Nẵng</option>
+							<?php
+							global $wpdb;
+							$active_provinces = $wpdb->get_col("
+								SELECT DISTINCT pm.meta_value 
+								FROM {$wpdb->postmeta} pm
+								JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+								WHERE pm.meta_key = 'reco_sale_province' 
+								AND p.post_type = 'reco_sale' 
+								AND p.post_status = 'publish' 
+								AND pm.meta_value != ''
+							");
+							$active_communes = $wpdb->get_col("
+								SELECT DISTINCT pm.meta_value 
+								FROM {$wpdb->postmeta} pm
+								JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+								WHERE pm.meta_key = 'reco_sale_commune' 
+								AND p.post_type = 'reco_sale' 
+								AND p.post_status = 'publish' 
+								AND pm.meta_value != ''
+							");
+
+							$map_data = function_exists('reco_get_vietnam_map_data') ? reco_get_vietnam_map_data() : array();
+							$current_province = isset($_GET['tinh-thanh']) ? sanitize_text_field(wp_unslash($_GET['tinh-thanh'])) : '';
+							if (!empty($map_data)) {
+								foreach ( $map_data as $province => $communes ) {
+									if (in_array($province, $active_provinces)) {
+										echo '<option value="' . esc_attr( $province ) . '" ' . selected( $current_province, $province, false ) . '>' . esc_html( $province ) . '</option>';
+									}
+								}
+							}
+							?>
 						</select>
 					</div>
 
@@ -1571,6 +1599,16 @@ function reco_render_sale_search_form( $padding_top = '120px', $margin_bottom = 
 						<label for="search-quan-huyen">Quận/Huyện</label>
 						<select name="quan-huyen" id="search-quan-huyen">
 							<option value="">Tất cả</option>
+							<?php
+							$current_commune = isset($_GET['quan-huyen']) ? sanitize_text_field(wp_unslash($_GET['quan-huyen'])) : '';
+							if ( $current_province && !empty($map_data[ $current_province ]) ) {
+								foreach ( $map_data[ $current_province ] as $commune ) {
+									if (in_array($commune, $active_communes)) {
+										echo '<option value="' . esc_attr( $commune ) . '" ' . selected( $current_commune, $commune, false ) . '>' . esc_html( $commune ) . '</option>';
+									}
+								}
+							}
+							?>
 						</select>
 					</div>
 
@@ -1593,6 +1631,65 @@ function reco_render_sale_search_form( $padding_top = '120px', $margin_bottom = 
 					</button>
 				</div>
 			</form>
+			<?php if (!empty($map_data)): ?>
+			<script>
+				(function($) {
+					var recoLocationMap = <?php echo wp_json_encode( $map_data ); ?>;
+					var recoActiveCommunes = <?php echo wp_json_encode( $active_communes ); ?>;
+					var $province = $('#search-tinh-thanh');
+					var $commune = $('#search-quan-huyen');
+					
+					if ($province.length && $commune.length) {
+						var lastProvince = null;
+						setInterval(function() {
+							var currentProvince = $province.val();
+							if (currentProvince !== lastProvince) {
+								if (lastProvince !== null) {
+									$commune.empty().append('<option value="">Tất cả</option>');
+									if ( currentProvince && recoLocationMap[currentProvince] ) {
+										$.each(recoLocationMap[currentProvince], function(index, commune) {
+											if (recoActiveCommunes.indexOf(commune) !== -1) {
+												$commune.append($('<option></option>').attr('value', commune).text(commune));
+											}
+										});
+									}
+									
+									// Update custom dropdown UI if it exists
+									var $dropdown = $commune.closest('.reco-sale-search__dropdown');
+									var $optionsList = $dropdown.find('.reco-custom-select-options');
+									if ($optionsList.length) {
+										$optionsList.empty();
+										$dropdown.find('.reco-custom-select-display').text('Tất cả');
+										
+										$commune.find('option').each(function() {
+											var $opt = $(this);
+											var $item = $('<div></div>').text($opt.text()).attr('data-value', $opt.val());
+											if ($opt.val() === '') {
+												$item.addClass('selected');
+											}
+											$item.on('click', function(e) {
+												e.stopPropagation();
+												$commune.val($(this).attr('data-value'));
+												$dropdown.find('.reco-custom-select-display').text($(this).text());
+												$dropdown.find('.reco-custom-select-options.show').removeClass('show');
+												$dropdown.removeClass('active');
+												$dropdown.find('.reco-custom-select-options div').removeClass('selected');
+												$(this).addClass('selected');
+												$commune[0].dispatchEvent(new Event('change'));
+											});
+											$optionsList.append($item);
+										});
+									}
+
+									$commune.trigger('change');
+								}
+								lastProvince = currentProvince;
+							}
+						}, 300);
+					}
+				})(jQuery);
+			</script>
+			<?php endif; ?>
 		</div>
 	</section>
 	<?php

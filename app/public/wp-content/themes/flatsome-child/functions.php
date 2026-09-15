@@ -422,8 +422,8 @@ function reco_filter_sale_archive($query) {
 	}
 
 	$tu_khoa = isset($_GET['tu-khoa']) ? sanitize_text_field(wp_unslash($_GET['tu-khoa'])) : '';
-	$tinh_thanh = isset($_GET['tinh-thanh']) ? sanitize_key(wp_unslash($_GET['tinh-thanh'])) : '';
-	$quan_huyen = isset($_GET['quan-huyen']) ? sanitize_key(wp_unslash($_GET['quan-huyen'])) : '';
+	$tinh_thanh = isset($_GET['tinh-thanh']) ? sanitize_text_field(wp_unslash($_GET['tinh-thanh'])) : '';
+	$quan_huyen = isset($_GET['quan-huyen']) ? sanitize_text_field(wp_unslash($_GET['quan-huyen'])) : '';
 	$muc_gia = isset($_GET['muc-gia']) ? sanitize_key(wp_unslash($_GET['muc-gia'])) : '';
 
 	$hinh_thuc = isset($_GET['hinh-thuc']) ? sanitize_key(wp_unslash($_GET['hinh-thuc'])) : '';
