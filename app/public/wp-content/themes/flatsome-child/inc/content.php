@@ -1571,6 +1571,7 @@ function reco_render_sale_search_form( $padding_top = '120px', $margin_bottom = 
 								AND p.post_type = 'reco_sale' 
 								AND p.post_status = 'publish' 
 								AND pm.meta_value != ''
+								ORDER BY pm.meta_value ASC
 							");
 							$active_communes = $wpdb->get_col("
 								SELECT DISTINCT pm.meta_value 
@@ -1580,6 +1581,7 @@ function reco_render_sale_search_form( $padding_top = '120px', $margin_bottom = 
 								AND p.post_type = 'reco_sale' 
 								AND p.post_status = 'publish' 
 								AND pm.meta_value != ''
+								ORDER BY pm.meta_value ASC
 							");
 
 							$map_data = function_exists('reco_get_vietnam_map_data') ? reco_get_vietnam_map_data() : array();
@@ -1606,6 +1608,10 @@ function reco_render_sale_search_form( $padding_top = '120px', $margin_bottom = 
 									if (in_array($commune, $active_communes)) {
 										echo '<option value="' . esc_attr( $commune ) . '" ' . selected( $current_commune, $commune, false ) . '>' . esc_html( $commune ) . '</option>';
 									}
+								}
+							} else {
+								foreach ( $active_communes as $commune ) {
+									echo '<option value="' . esc_attr( $commune ) . '" ' . selected( $current_commune, $commune, false ) . '>' . esc_html( $commune ) . '</option>';
 								}
 							}
 							?>
@@ -1640,52 +1646,48 @@ function reco_render_sale_search_form( $padding_top = '120px', $margin_bottom = 
 					var $commune = $('#search-quan-huyen');
 					
 					if ($province.length && $commune.length) {
-						var lastProvince = null;
-						setInterval(function() {
-							var currentProvince = $province.val();
-							if (currentProvince !== lastProvince) {
-								if (lastProvince !== null) {
-									$commune.empty().append('<option value="">Tất cả</option>');
-									if ( currentProvince && recoLocationMap[currentProvince] ) {
-										$.each(recoLocationMap[currentProvince], function(index, commune) {
-											if (recoActiveCommunes.indexOf(commune) !== -1) {
-												$commune.append($('<option></option>').attr('value', commune).text(commune));
-											}
-										});
+						$province.on('change', function() {
+							var currentProvince = $(this).val();
+							$commune.empty().append('<option value="">Tất cả</option>');
+							if ( currentProvince && recoLocationMap[currentProvince] ) {
+								$.each(recoLocationMap[currentProvince], function(index, commune) {
+									if (recoActiveCommunes.indexOf(commune) !== -1) {
+										$commune.append($('<option></option>').attr('value', commune).text(commune));
 									}
-									
-									// Update custom dropdown UI if it exists
-									var $dropdown = $commune.closest('.reco-sale-search__dropdown');
-									var $optionsList = $dropdown.find('.reco-custom-select-options');
-									if ($optionsList.length) {
-										$optionsList.empty();
-										$dropdown.find('.reco-custom-select-display').text('Tất cả');
-										
-										$commune.find('option').each(function() {
-											var $opt = $(this);
-											var $item = $('<div></div>').text($opt.text()).attr('data-value', $opt.val());
-											if ($opt.val() === '') {
-												$item.addClass('selected');
-											}
-											$item.on('click', function(e) {
-												e.stopPropagation();
-												$commune.val($(this).attr('data-value'));
-												$dropdown.find('.reco-custom-select-display').text($(this).text());
-												$dropdown.find('.reco-custom-select-options.show').removeClass('show');
-												$dropdown.removeClass('active');
-												$dropdown.find('.reco-custom-select-options div').removeClass('selected');
-												$(this).addClass('selected');
-												$commune[0].dispatchEvent(new Event('change'));
-											});
-											$optionsList.append($item);
-										});
-									}
-
-									$commune.trigger('change');
-								}
-								lastProvince = currentProvince;
+								});
+							} else if (!currentProvince) {
+								$.each(recoActiveCommunes, function(index, commune) {
+									$commune.append($('<option></option>').attr('value', commune).text(commune));
+								});
 							}
-						}, 300);
+							
+							// Update custom dropdown UI if it exists
+							var $dropdown = $commune.closest('.reco-sale-search__dropdown');
+							var $optionsList = $dropdown.find('.reco-custom-select-options');
+							if ($optionsList.length) {
+								$optionsList.empty();
+								$dropdown.find('.reco-custom-select-display').text('Tất cả');
+								
+								$commune.find('option').each(function() {
+									var $opt = $(this);
+									var $item = $('<div></div>').text($opt.text()).attr('data-value', $opt.val());
+									if ($opt.val() === '') {
+										$item.addClass('selected');
+									}
+									$item.on('click', function(e) {
+										e.stopPropagation();
+										$commune.val($(this).attr('data-value'));
+										$dropdown.find('.reco-custom-select-display').text($(this).text());
+										$dropdown.find('.reco-custom-select-options.show').removeClass('show');
+										$dropdown.removeClass('active');
+										$dropdown.find('.reco-custom-select-options div').removeClass('selected');
+										$(this).addClass('selected');
+										$commune[0].dispatchEvent(new Event('change'));
+									});
+									$optionsList.append($item);
+								});
+							}
+						});
 					}
 				})(jQuery);
 			</script>
