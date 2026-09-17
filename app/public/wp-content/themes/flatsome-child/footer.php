@@ -83,6 +83,16 @@
 </nav>
 
 <?php wp_footer(); ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	var emptyLinks = document.querySelectorAll('.reco-nav__list a[href="#"], .reco-mobile-menu__list a[href="#"]');
+	emptyLinks.forEach(function(link) {
+		link.addEventListener('click', function(e) {
+			e.preventDefault();
+		});
+	});
+});
+</script>
 </body>
 
 </html>

@@ -33,7 +33,7 @@
 					'container'      => false,
 					'menu_class'     => 'reco-nav__list',
 					'fallback_cb'    => 'reco_menu_fallback',
-					'depth'          => 1,
+					'depth'          => 2,
 				)
 			);
 			?>
@@ -64,7 +64,7 @@
 					'container'      => false,
 					'menu_class'     => 'reco-mobile-menu__list',
 					'fallback_cb'    => 'reco_menu_fallback',
-					'depth'          => 1,
+					'depth'          => 2,
 				)
 			);
 			?>
