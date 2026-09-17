@@ -133,7 +133,7 @@ function reco_install_site_content()
 		'trang-chu' => 'Trang chủ',
 		'gioi-thieu' => 'Giới thiệu',
 		'du-an' => 'Dự án',
-		'nha-dat-ban' => 'Nhà đất bán',
+		'tin-rao-ban' => 'Tin rao bán',
 		'tin-tuc' => 'Tin tức',
 		'noi-bo' => 'Nội bộ',
 		'tuyen-dung' => 'Tuyển dụng',
@@ -207,11 +207,11 @@ function reco_ensure_sale_page()
 	if (get_option('reco_sale_page_created')) {
 		return;
 	}
-	$existing = get_page_by_path('nha-dat-ban');
+	$existing = get_page_by_path('tin-rao-ban');
 	if (!$existing) {
-		wp_insert_post(array(
-			'post_title'    => 'Nhà đất bán',
-			'post_name'     => 'nha-dat-ban',
+		$page_id = wp_insert_post(array(
+			'post_title'    => 'Tin rao bán',
+			'post_name'     => 'tin-rao-ban',
 			'post_status'   => 'publish',
 			'post_type'     => 'page',
 			'post_content'  => '',
@@ -519,7 +519,8 @@ add_action('pre_get_posts', 'reco_filter_sale_archive');
 add_filter('register_post_type_args', 'reco_enable_sale_archive_args', 10, 2);
 function reco_enable_sale_archive_args($args, $post_type) {
     if ($post_type === 'reco_sale') {
-        $args['has_archive'] = 'nha-dat-ban';
+        $args['has_archive'] = 'tin-rao-ban';
+        $args['rewrite'] = array('slug' => 'tin-rao-ban', 'with_front' => false);
     }
     return $args;
 }

@@ -1463,7 +1463,7 @@ function reco_render_page($slug)
 	$renderers = array(
 		'gioi-thieu' => 'reco_render_about',
 		'du-an' => 'reco_render_products',
-		'nha-dat-ban' => 'reco_render_sale_listings',
+		'tin-rao-ban' => 'reco_render_sale_listings',
 		'tin-tuc' => 'reco_render_news',
 		'noi-bo' => 'reco_render_internal',
 		'tuyen-dung' => 'reco_render_careers',

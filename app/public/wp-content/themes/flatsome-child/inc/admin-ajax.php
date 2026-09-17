@@ -244,7 +244,7 @@ function reco_ajax_sale_search() {
 		unset($query_args['nonce']);
 		unset($query_args['paged']);
 		
-		$base_url = esc_url(get_post_type_archive_link('reco_sale') ?: home_url('/nha-dat-ban/'));
+		$base_url = esc_url(get_post_type_archive_link('reco_sale') ?: home_url('/tin-rao-ban/'));
 		
 		$pagination_links = paginate_links(array(
 			'base'      => trailingslashit($base_url) . '%_%',

@@ -72,8 +72,7 @@ while (have_posts()):
 				<a href="<?php echo esc_url(home_url('/')); ?>">Trang chủ</a>
 				<span aria-hidden="true">/</span>
 				<a
-					href="<?php echo esc_url(get_post_type_archive_link('reco_sale') ?: home_url('/nha-dat-ban/')); ?>">Nhà
-					đất bán</a>
+					href="<?php echo esc_url(get_post_type_archive_link('reco_sale') ?: home_url('/tin-rao-ban/')); ?>">Tin rao bán</a>
 				<span aria-hidden="true">/</span>
 				<span><?php the_title(); ?></span>
 			</div>

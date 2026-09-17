@@ -347,6 +347,10 @@ body.reco-site {
 	gap: 28px;
 }
 
+.reco-topbar a {
+	color: inherit;
+}
+
 .reco-topbar a:hover {
 	color: var(--reco-white);
 }
@@ -445,9 +449,9 @@ body.admin-bar .reco-header {
 .reco-nav__list .sub-menu {
 	position: absolute;
 	top: 100%;
-	left: 50%;
-	transform: translateX(-50%) translateY(10px);
-	min-width: 200px;
+	left: 0;
+	transform: translateY(10px);
+	min-width: 100%;
 	background: var(--reco-white);
 	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 	border-radius: 8px;
@@ -465,7 +469,7 @@ body.admin-bar .reco-header {
 .reco-nav__list .menu-item-has-children:hover .sub-menu {
 	opacity: 1;
 	visibility: visible;
-	transform: translateX(-50%) translateY(0);
+	transform: translateY(0);
 }
 
 .reco-nav__list .sub-menu li {
@@ -479,8 +483,8 @@ body.admin-bar .reco-header {
 	font-size: 0.875rem;
 	font-weight: 500;
 	color: var(--reco-ink);
-	justify-content: center;
-	white-space: normal;
+	justify-content: flex-start;
+	white-space: nowrap;
 	transition: background-color 0.2s ease, color 0.2s ease;
 }
 
