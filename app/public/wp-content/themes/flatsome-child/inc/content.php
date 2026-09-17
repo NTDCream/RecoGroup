@@ -401,55 +401,27 @@ function reco_filter_project_archive($query)
 		return;
 	}
 
-	$transaction = reco_project_search_value('giao-dich', 'mua');
-	$price = reco_project_search_value('khoang-gia');
-	$type = reco_project_search_value('loai-hinh');
-	$province = reco_project_search_value('tinh-thanh');
-	$meta_query = array();
-	$tax_query = array('relation' => 'AND');
-
-	if (isset(reco_project_transaction_choices()[$transaction])) {
-		$meta_query[] = array('key' => 'reco_project_transaction', 'value' => $transaction);
-	}
-	$price_ranges = reco_project_price_ranges();
-	if ($price && isset($price_ranges[$price]) && $transaction === $price_ranges[$price]['transaction']) {
-		$range = $price_ranges[$price];
-		$numeric_query = array('relation' => 'AND');
-
-		if (isset($range['min'])) {
-			$numeric_query[] = array(
-				'key' => 'reco_project_price_value',
-				'value' => $range['min'],
-				'compare' => isset($range['min_compare']) ? $range['min_compare'] : '>=',
-				'type' => 'DECIMAL(10,2)',
-			);
-		}
-		if (isset($range['max'])) {
-			$numeric_query[] = array(
-				'key' => 'reco_project_price_value',
-				'value' => $range['max'],
-				'compare' => isset($range['max_compare']) ? $range['max_compare'] : '<=',
-				'type' => 'DECIMAL(10,2)',
-			);
-		}
-
-		$meta_query[] = $numeric_query;
-	}
-	if ($type) {
-		$tax_query[] = array('taxonomy' => 'reco_project_type', 'field' => 'slug', 'terms' => $type);
-	}
-	if ($province) {
-		$tax_query[] = array('taxonomy' => 'reco_location', 'field' => 'slug', 'terms' => $province, 'include_children' => true);
+	// 1. Sorting logic based on new dropdown
+	$sort = isset($_GET['sap-xep']) ? sanitize_text_field($_GET['sap-xep']) : 'moi-nhat';
+	
+	switch ($sort) {
+		case 'gia-tang':
+			$query->set('meta_key', 'reco_project_price_value');
+			$query->set('orderby', 'meta_value_num');
+			$query->set('order', 'ASC');
+			break;
+		case 'gia-giam':
+			$query->set('meta_key', 'reco_project_price_value');
+			$query->set('orderby', 'meta_value_num');
+			$query->set('order', 'DESC');
+			break;
+		case 'moi-nhat':
+		default:
+			$query->set('orderby', array('menu_order' => 'ASC', 'date' => 'DESC'));
+			break;
 	}
 
-	if ($meta_query) {
-		$query->set('meta_query', $meta_query);
-	}
-	if (count($tax_query) > 1) {
-		$query->set('tax_query', $tax_query);
-	}
 	$query->set('posts_per_page', 12);
-	$query->set('orderby', array('menu_order' => 'ASC', 'date' => 'DESC'));
 }
 add_action('pre_get_posts', 'reco_filter_project_archive');
 
