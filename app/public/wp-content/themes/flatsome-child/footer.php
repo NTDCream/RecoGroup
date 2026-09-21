@@ -26,8 +26,10 @@
 		<div class="reco-footer__contact">
 			<h3>Kết nối với chúng tôi</h3>
 			<p>Số 19–21 phố Vũ Trọng Phụng, phường Thanh Xuân Trung, quận Thanh Xuân, TP. Hà Nội.</p>
-			<p style="margin-bottom: 5px;">Hotline: <a href="tel:0934524445" style="color: inherit; font-weight: 700;">0934.524.445</a></p>
-			<p style="margin-bottom: 20px;">Email: <a href="mailto:cskh@nhaongayreco.vn" style="color: inherit;">cskh@nhaongayreco.vn</a></p>
+			<p style="margin-bottom: 5px;">Hotline: <a href="tel:0934524445"
+					style="color: inherit; font-weight: 700;">0934.524.445</a></p>
+			<p style="margin-bottom: 20px;">Email: <a href="mailto:cskh@nhaongayreco.vn"
+					style="color: inherit;">cskh@nhaongayreco.vn</a></p>
 			<a href="<?php echo esc_url(home_url('/lien-he/#form-lien-he')); ?>">Gửi yêu cầu trực tuyến</a>
 		</div>
 	</div>
@@ -38,16 +40,18 @@
 </footer>
 
 <div class="reco-float-actions" aria-label="Liên hệ nhanh">
+	<a class="reco-float-actions__zalo" href="https://zalo.me/0934524445" target="_blank" rel="noopener"
+		aria-label="Liên hệ qua Zalo"><span>Zalo</span></a>
+
 	<a class="reco-float-actions__phone" href="tel:0934524445" aria-label="Gọi 0934 524 445">
 		<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
 			<path
 				d="M7.3 3.2l2.2 4.1-1.8 1.8a14.4 14.4 0 007.2 7.2l1.8-1.8 4.1 2.2-.7 3.2c-.2.8-.9 1.4-1.7 1.4C9.8 21.3 2.7 14.2 2.7 5.6c0-.8.6-1.5 1.4-1.7l3.2-.7z"
 				fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
 		</svg>
-		<span>Gọi tư vấn</span>
+
 	</a>
-	<a class="reco-float-actions__zalo" href="https://zalo.me/0934524445" target="_blank" rel="noopener"
-		aria-label="Liên hệ qua Zalo"><span>Zalo</span></a>
+
 </div>
 
 <nav class="reco-mobile-dock" aria-label="Liên hệ nhanh trên di động">
@@ -84,14 +88,14 @@
 
 <?php wp_footer(); ?>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-	var emptyLinks = document.querySelectorAll('.reco-nav__list a[href="#"], .reco-mobile-menu__list a[href="#"]');
-	emptyLinks.forEach(function(link) {
-		link.addEventListener('click', function(e) {
-			e.preventDefault();
+	document.addEventListener('DOMContentLoaded', function () {
+		var emptyLinks = document.querySelectorAll('.reco-nav__list a[href="#"], .reco-mobile-menu__list a[href="#"]');
+		emptyLinks.forEach(function (link) {
+			link.addEventListener('click', function (e) {
+				e.preventDefault();
+			});
 		});
 	});
-});
 </script>
 </body>
 

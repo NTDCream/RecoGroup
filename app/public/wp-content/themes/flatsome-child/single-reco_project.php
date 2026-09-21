@@ -50,12 +50,6 @@ while ( have_posts() ) :
 
 	$hero_gallery = $gallery;
 	if ( $hero_gallery ) {
-		$source_gallery = $hero_gallery;
-		$source_index   = 0;
-		while ( count( $hero_gallery ) < 5 ) {
-			$hero_gallery[] = $source_gallery[ $source_index % count( $source_gallery ) ];
-			++$source_index;
-		}
 		$hero_gallery = array_slice( $hero_gallery, 0, 5 );
 	}
 	?>
@@ -72,20 +66,18 @@ while ( have_posts() ) :
 
 		<?php if ( $hero_gallery ) : ?>
 			<section class="reco-project-hero-gallery" aria-label="Ảnh nổi bật của <?php the_title_attribute(); ?>">
-				<div class="reco-container reco-project-hero-gallery__grid">
+				<div class="reco-container reco-project-hero-gallery__grid reco-project-hero-gallery__grid--count-<?php echo count( $hero_gallery ); ?>">
 					<?php foreach ( $hero_gallery as $index => $image_id ) : ?>
 						<figure class="reco-project-hero-gallery__item reco-project-hero-gallery__item--<?php echo esc_attr( $index + 1 ); ?>">
 							<?php echo wp_get_attachment_image( $image_id, 0 === $index ? 'large' : 'medium_large', false, array( 'loading' => 0 === $index ? 'eager' : 'lazy', 'fetchpriority' => 0 === $index ? 'high' : 'auto' ) ); ?>
 						</figure>
 					<?php endforeach; ?>
-					<a class="reco-project-hero-gallery__count" href="#anh-can-ho-mau">
-						<span aria-hidden="true">▦</span> <?php echo esc_html( count( $gallery ) ); ?> ảnh
-					</a>
+
 				</div>
 			</section>
 		<?php endif; ?>
 
-		<?php reco_project_search_form( array( 'transaction' => $transaction ) ); ?>
+
 
 		<section class="reco-project-summary">
 			<div class="reco-container reco-project-summary__grid">
@@ -102,7 +94,7 @@ while ( have_posts() ) :
 					<div class="reco-project-summary__intro reco-project-rich-text"><?php echo wp_kses_post( $render_rich_text( $overview_intro ) ); ?></div>
 				</div>
 				<aside class="reco-project-price-card" aria-label="Thông tin giá và liên hệ">
-					<div class="reco-project-price-card__price"><span><?php echo esc_html( $price_caption ); ?></span><strong><?php echo esc_html( $price ); ?></strong><small><?php echo esc_html( $transaction_label ); ?></small></div>
+					<div class="reco-project-price-card__price"><span><?php echo esc_html( $price_caption ); ?></span><strong><?php echo esc_html( $price ); ?></strong></div>
 					<a href="tel:<?php echo esc_attr( $hotline_href ); ?>">
 						<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7.3 3.2l2.2 4.1-1.8 1.8a14.4 14.4 0 007.2 7.2l1.8-1.8 4.1 2.2-.7 3.2c-.2.8-.9 1.4-1.7 1.4C9.8 21.3 2.7 14.2 2.7 5.6c0-.8.6-1.5 1.4-1.7l3.2-.7z" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
 						<?php echo esc_html( $hotline ); ?>

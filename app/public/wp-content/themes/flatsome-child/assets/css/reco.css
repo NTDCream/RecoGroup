@@ -4390,21 +4390,54 @@ body.single-reco_project .reco-footer-cta {
 	position: relative;
 	display: grid;
 	grid-template-columns: 2.05fr 1fr 1fr;
-	grid-template-rows: repeat(2, minmax(190px, 1fr));
-	gap: 14px;
-	min-height: min(42vw, 520px);
+	grid-template-rows: repeat(2, 1fr);
+	gap: 12px;
+	height: clamp(300px, 32vw, 420px);
 }
 
 .reco-project-hero-gallery__item {
 	min-width: 0;
 	margin: 0;
 	overflow: hidden;
-	border-radius: 3px;
+	border-radius: 8px;
 	background: #dfe7ec;
 }
 
 .reco-project-hero-gallery__item--1 {
 	grid-row: 1 / -1;
+}
+
+/* 1 image: single full-width image */
+.reco-project-hero-gallery__grid--count-1 {
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr;
+}
+.reco-project-hero-gallery__grid--count-1 .reco-project-hero-gallery__item--1 {
+	grid-row: auto;
+}
+
+/* 2 images: large left + 1 right spanning full height */
+.reco-project-hero-gallery__grid--count-2 {
+	grid-template-columns: 2fr 1fr;
+	grid-template-rows: 1fr;
+}
+.reco-project-hero-gallery__grid--count-2 .reco-project-hero-gallery__item--1 {
+	grid-row: auto;
+}
+
+/* 3 images: large left + 2 stacked right */
+.reco-project-hero-gallery__grid--count-3 {
+	grid-template-columns: 2fr 1fr;
+	grid-template-rows: repeat(2, 1fr);
+}
+
+/* 4 images: large left + 1 top-right + 2 bottom */
+.reco-project-hero-gallery__grid--count-4 {
+	grid-template-columns: 2.05fr 1fr 1fr;
+	grid-template-rows: repeat(2, 1fr);
+}
+.reco-project-hero-gallery__grid--count-4 .reco-project-hero-gallery__item--2 {
+	grid-column: 2 / -1;
 }
 
 .reco-project-hero-gallery__item img {
@@ -4729,6 +4762,7 @@ body.single-reco_project .reco-footer-cta {
 	background: var(--reco-orange);
 	color: #fff;
 	gap: 2px;
+	text-align: center;
 }
 
 .reco-project-price-card__price span {
