@@ -69,6 +69,7 @@ $found_posts = (int) $GLOBALS['wp_query']->found_posts;
 									<?php the_post_thumbnail( 'medium_large', array( 'loading' => 'lazy' ) ); ?>
 								<?php endif; ?>
 								<span class="reco-pcard__badge"><?php echo esc_html( $type_name ); ?></span>
+								<span class="reco-pcard__btn">Chi tiết</span>
 							</a>
 							<?php if ( $is_hot ) : ?>
 								<div class="reco-pcard__ribbon"><span>HOT</span></div>
@@ -80,7 +81,7 @@ $found_posts = (int) $GLOBALS['wp_query']->found_posts;
 									<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
 									<?php echo esc_html( $location ); ?>
 								</p>
-								<p class="reco-pcard__price">Giá: <strong><?php echo esc_html( $price ); ?></strong></p>
+								<p class="reco-pcard__price"><em>Giá:</em> <strong><?php echo esc_html( $price ); ?></strong></p>
 							</div>
 						</article>
 					<?php endwhile; ?>
