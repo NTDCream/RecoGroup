@@ -79,3 +79,5 @@ Stack trace:
 [23-Sep-2026 04:51:06 UTC] PHP Fatal error:  Cannot redeclare reco_render_project_cards() (previously declared in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\inc\content.php:95) in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\inc\content.php on line 446
 [23-Sep-2026 04:51:06 UTC] PHP Fatal error:  Cannot redeclare reco_render_project_cards() (previously declared in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\inc\content.php:95) in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\inc\content.php on line 446
 [23-Sep-2026 08:00:10 UTC] PHP Parse error:  Unmatched '}' in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\functions.php on line 537
+[23-Sep-2026 08:40:16 UTC] PHP Parse error:  Unmatched '}' in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\functions.php on line 569
+[23-Sep-2026 08:40:16 UTC] PHP Parse error:  Unmatched '}' in C:\Users\Hi\Local Sites\reco-group\app\public\wp-content\themes\flatsome-child\functions.php on line 569
