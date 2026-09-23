@@ -566,3 +566,104 @@ function reco_require_sale_featured_image_rest($prepared_post, $request) {
 	}
 	return $prepared_post;
 }
+
+/**
+ * Make post title and featured image mandatory for Tin tức (post)
+ */
+add_action('acf/validate_save_post', 'reco_require_news_title', 10, 0);
+function reco_require_news_title() {
+	if ( ! is_admin() || ! isset( $_POST['post_type'] ) || 'post' !== $_POST['post_type'] ) {
+		return;
+	}
+
+	if ( isset( $_POST['post_title'] ) && empty( trim( $_POST['post_title'] ) ) ) {
+		acf_add_validation_error( '', 'Vui lòng nhập Tiêu đề cho bài viết.' );
+	}
+
+	if ( isset( $_POST['_thumbnail_id'] ) && ( $_POST['_thumbnail_id'] === '-1' || empty( $_POST['_thumbnail_id'] ) ) ) {
+		acf_add_validation_error( '', 'Vui lòng chọn Ảnh đại diện cho bài viết.' );
+	}
+}
+
+add_filter('rest_pre_insert_post', 'reco_require_news_title_rest', 10, 2);
+function reco_require_news_title_rest($prepared_post, $request) {
+	if ( isset( $prepared_post->post_status ) && 'publish' === $prepared_post->post_status ) {
+		if ( empty( trim( $prepared_post->post_title ) ) ) {
+			return new WP_Error( 'rest_empty_title', 'Vui lòng nhập Tiêu đề cho bài viết.', array( 'status' => 400 ) );
+		}
+		$featured_media = $request->get_param( 'featured_media' );
+		if ( empty( $featured_media ) ) {
+			return new WP_Error( 'rest_empty_thumbnail', 'Vui lòng chọn Ảnh đại diện cho bài viết.', array( 'status' => 400 ) );
+		}
+	}
+	return $prepared_post;
+}
+
+/**
+ * Require title and featured image for posts via JS to mimic ACF in Classic Editor
+ */
+add_action('admin_footer-post.php', 'reco_require_news_title_js');
+add_action('admin_footer-post-new.php', 'reco_require_news_title_js');
+function reco_require_news_title_js() {
+	global $post;
+	if ( ! $post || $post->post_type !== 'post' ) return;
+	?>
+	<script>
+	jQuery(document).ready(function($){
+		$('#post').on('submit', function(e){
+			var title = $('#title').val();
+			var thumbnail = $('#_thumbnail_id').val();
+			var errorMessages = [];
+
+			if (title !== undefined && title.trim() === '') {
+				errorMessages.push('Tiêu đề');
+			}
+			if (thumbnail === undefined || thumbnail === '' || thumbnail === '-1') {
+				errorMessages.push('Ảnh đại diện');
+			}
+
+			if (errorMessages.length > 0) {
+				$('.reco-title-error').remove();
+				$('#title').css('border-color', '');
+				$('#postimagediv').css('border', '');
+
+				var errorText = '<strong>Lỗi:</strong> Vui lòng ' + (errorMessages.indexOf('Tiêu đề') !== -1 ? 'nhập ' : 'chọn ') + errorMessages.join(' và ') + ' cho bài viết.';
+				if (errorMessages.length > 1) {
+					errorText = '<strong>Lỗi:</strong> Vui lòng nhập Tiêu đề và chọn Ảnh đại diện cho bài viết.';
+				}
+				
+				$('#titlediv').before('<div class="notice notice-error reco-title-error"><p>' + errorText + '</p></div>');
+				
+				var scrollTarget = 0;
+				if (errorMessages.indexOf('Tiêu đề') !== -1) {
+					$('#title').css('border-color', '#d63638');
+					scrollTarget = 0;
+				}
+				
+				if (errorMessages.indexOf('Ảnh đại diện') !== -1) {
+					$('#postimagediv').css('border', '1px solid #d63638');
+					$('#postimagediv .inside').prepend('<div class="reco-title-error" style="color: #d63638; margin-bottom: 10px; font-weight: bold;">Vui lòng chọn Ảnh đại diện</div>');
+					
+					// If title is fine, scroll to the image box
+					if (scrollTarget === 0 && errorMessages.indexOf('Tiêu đề') === -1) {
+						var imgTop = $('#postimagediv').offset().top;
+						scrollTarget = imgTop - 50;
+					}
+				}
+
+				setTimeout(function(){
+					$('#publish').removeClass('button-primary-disabled');
+					$('#ajax-loading').css('visibility', 'hidden');
+				}, 100);
+				$('html, body').animate({scrollTop: scrollTarget}, 200);
+				return false;
+			} else {
+				// Reset borders if valid
+				$('#title').css('border-color', '');
+				$('#postimagediv').css('border', '');
+			}
+		});
+	});
+	</script>
+	<?php
+}

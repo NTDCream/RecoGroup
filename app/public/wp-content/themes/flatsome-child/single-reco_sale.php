@@ -37,7 +37,7 @@ while (have_posts()):
 	} else {
 		$unit_text = ('trieu' === $price_unit) ? 'triệu' : 'tỷ';
 	}
-	$price_label = $price_value ? number_format($price_value, (fmod($price_value, 1) ? 1 : 0), '.', '.') . ' ' . $unit_text : 'Liên hệ';
+	$price_label = $price_value ? number_format($price_value, (fmod($price_value, 1) ? 1 : 0), '.', '.') . ' ' . $unit_text : 'Thỏa thuận';
 	$price_box_label = ('cho-thue' === $transaction) ? 'Giá thuê' : 'Giá bán';
 
 	/* Direction label */

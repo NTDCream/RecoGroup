@@ -1129,7 +1129,7 @@ function reco_render_news($category = null)
 
 					<div class="reco-news-list" aria-label="Danh sách tin tức" id="reco-news-list-container">
 						<?php
-						$news_paged = isset($_GET['trang']) ? max(1, (int) $_GET['trang']) : 1;
+						$news_paged = (get_query_var('paged')) ? get_query_var('paged') : ((get_query_var('page')) ? get_query_var('page') : 1);
 						$per_page = 10;
 						$args = array_merge($category_query, array(
 							'post_type' => 'post',
@@ -1149,10 +1149,10 @@ function reco_render_news($category = null)
 					$total_remaining = max(0, $news_query->found_posts - 3);
 					$total_pages = ceil($total_remaining / $per_page);
 					if ($total_pages > 1):
-						$base_url = $is_category_archive ? get_term_link($category) : home_url('/tin-tuc/');
+						$big = 999999999;
 						$pagination_links = paginate_links(array(
-							'base'      => esc_url($base_url) . '%_%',
-							'format'    => '?trang=%#%',
+							'base'      => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
+							'format'    => 'page/%#%/',
 							'current'   => $news_paged,
 							'total'     => $total_pages,
 							'prev_text' => '&larr; Trước',
@@ -1773,7 +1773,7 @@ function reco_render_sale_cards( $query, $slider = false ) {
 		} else {
 			$unit_text = ( 'trieu' === $price_unit ) ? 'triệu' : 'tỷ';
 		}
-		$price_text = $price_val ? number_format( $price_val, ( fmod( $price_val, 1 ) ? 1 : 0 ), '.', '.' ) . ' ' . $unit_text : 'Liên hệ';
+		$price_text = $price_val ? number_format( $price_val, ( fmod( $price_val, 1 ) ? 1 : 0 ), '.', '.' ) . ' ' . $unit_text : 'Thỏa thuận';
 		$gallery = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_sale_gallery', $sale_id, array() ) ) ) );
 		$thumb_id = $gallery ? $gallery[0] : get_post_thumbnail_id( $sale_id );
 		
