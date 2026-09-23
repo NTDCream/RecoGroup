@@ -6915,3 +6915,35 @@ body.single-reco_sale .reco-footer-cta {
 		height: 200px;
 	}
 }
+
+/* Related Slider Custom Arrows */
+.reco-related-slider:focus,
+.reco-related-slider.flickity-enabled:focus,
+.reco-related-slider .flickity-viewport:focus,
+.reco-related-slider .flickity-prev-next-button:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.reco-related-slider .flickity-prev-next-button {
+	border: none !important;
+	background: transparent !important;
+	box-shadow: none !important;
+	opacity: 1;
+}
+
+.reco-related-slider .flickity-prev-next-button svg {
+	color: var(--reco-blue, #0073e6) !important;
+}
+
+.reco-related-slider .flickity-prev-next-button:hover svg {
+	color: var(--reco-orange, #f26522) !important;
+}
+
+/* Move dots below cards */
+.reco-related-slider.flickity-enabled {
+	padding-bottom: 30px !important;
+}
+.reco-related-slider .flickity-page-dots {
+	bottom: -10px !important;
+}

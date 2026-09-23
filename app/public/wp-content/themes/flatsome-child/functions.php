@@ -534,4 +534,35 @@ function reco_remove_project_taxonomy_metaboxes() {
 	remove_meta_box('tagsdiv-reco_project_type', 'reco_project', 'side');
 	remove_meta_box('reco_project_typediv', 'reco_project', 'side');
 }
+
 add_action('admin_menu', 'reco_remove_project_taxonomy_metaboxes');
+
+/**
+ * Make post title and featured image mandatory for Tin rao bán
+ */
+add_action('acf/validate_save_post', 'reco_require_sale_fields', 10, 0);
+function reco_require_sale_fields() {
+	if ( ! is_admin() || ! isset( $_POST['post_type'] ) || 'reco_sale' !== $_POST['post_type'] ) {
+		return;
+	}
+
+	if ( isset( $_POST['post_title'] ) && empty( trim( $_POST['post_title'] ) ) ) {
+		acf_add_validation_error( '', 'Vui lòng nhập Tiêu đề cho tin rao bán.' );
+	}
+	
+	// For Classic Editor: _thumbnail_id is set to -1 when empty
+	if ( isset( $_POST['_thumbnail_id'] ) && ( $_POST['_thumbnail_id'] === '-1' || empty( $_POST['_thumbnail_id'] ) ) ) {
+		acf_add_validation_error( '', 'Vui lòng chọn Ảnh đại diện cho tin rao bán.' );
+	}
+}
+
+add_filter('rest_pre_insert_reco_sale', 'reco_require_sale_featured_image_rest', 10, 2);
+function reco_require_sale_featured_image_rest($prepared_post, $request) {
+	if ( isset( $prepared_post->post_status ) && 'publish' === $prepared_post->post_status ) {
+		$featured_media = $request->get_param( 'featured_media' );
+		if ( empty( $featured_media ) ) {
+			return new WP_Error( 'rest_empty_thumbnail', 'Vui lòng chọn Ảnh đại diện cho tin rao bán.', array( 'status' => 400 ) );
+		}
+	}
+	return $prepared_post;
+}

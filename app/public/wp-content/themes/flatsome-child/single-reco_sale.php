@@ -270,29 +270,7 @@ while (have_posts()):
 						<?php endif; ?>
 					</section>
 
-					<?php if ($related):
-						$related_project_id = $related[0];
-						$related_title = get_the_title($related_project_id);
-						$related_link = get_permalink($related_project_id);
-						$related_thumb = get_post_thumbnail_id($related_project_id);
-						?>
-						<!-- Related project -->
-						<section class="reco-sale-related-project">
-							<h2 class="reco-sale-section-title">DỰ ÁN LIÊN QUAN</h2>
-							<a href="<?php echo esc_url($related_link); ?>" class="reco-sale-related-project__card">
-								<?php if ($related_thumb): ?>
-									<div class="reco-sale-related-project__thumb">
-										<?php echo wp_get_attachment_image($related_thumb, 'medium', false, array('loading' => 'lazy')); ?>
-									</div>
-								<?php endif; ?>
 
-								<div class="reco-sale-related-project__info">
-									<h3><?php echo esc_html($related_title); ?></h3>
-									<span class="reco-text-link">Xem dự án <span aria-hidden="true">→</span></span>
-								</div>
-							</a>
-						</section>
-					<?php endif; ?>
 
 
 
@@ -331,54 +309,28 @@ while (have_posts()):
 		</div>
 
 		<?php
-		/* Slider Sản phẩm Cùng giá - Cùng khu vực */
-		$min_price = 0;
-		$max_price = 999999;
-		if ('mua-ban' === $transaction) {
-			if ($price_value < 2) {
-				$max_price = 1.99;
-			} elseif ($price_value <= 3) {
-				$min_price = 2;
-				$max_price = 3;
-			} elseif ($price_value <= 5) {
-				$min_price = 3.01;
-				$max_price = 5;
-			} else {
-				$min_price = 5.01;
-			}
-		} else {
-			// Cho thuê: Giá dao động +/- 30%
-			$min_price = $price_value * 0.7;
-			$max_price = $price_value * 1.3;
-		}
-
+		/* Slider Dự án Cùng giá - Cùng khu vực */
 		$related_args = array(
-			'post_type' => 'reco_sale',
+			'post_type' => 'reco_project',
 			'posts_per_page' => 8,
-			'post__not_in' => array($post_id),
-			'meta_query' => array(
-				'relation' => 'AND',
-				array(
-					'key' => 'reco_sale_transaction',
-					'value' => $transaction,
-					'compare' => '='
-				)
-			)
+			'post_status' => 'publish',
 		);
 
 		$or_conditions = array('relation' => 'OR');
 
 		if ($province) {
 			$or_conditions[] = array(
-				'key' => 'reco_sale_province',
+				'key' => 'reco_project_province',
 				'value' => trim($province),
 				'compare' => 'LIKE'
 			);
 		}
 
 		if ($price_value > 0) {
+			$min_price = $price_value * 0.7;
+			$max_price = $price_value * 1.3;
 			$or_conditions[] = array(
-				'key' => 'reco_sale_price_value',
+				'key' => 'reco_project_price_value',
 				'value' => array($min_price, $max_price),
 				'type' => 'DECIMAL',
 				'compare' => 'BETWEEN'
@@ -386,7 +338,7 @@ while (have_posts()):
 		}
 
 		if (count($or_conditions) > 1) {
-			$related_args['meta_query'][] = $or_conditions;
+			$related_args['meta_query'] = array($or_conditions);
 		}
 
 		$related_query = new WP_Query($related_args);
@@ -397,20 +349,19 @@ while (have_posts()):
 				<div class="reco-container">
 					<div style="text-align: center; margin-bottom: 30px;">
 						<span
-							style="display: block; color: #666; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Sản
-							phẩm liên quan</span>
+							style="display: block; color: #666; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Dự án liên quan</span>
 						<h2
 							style="margin-top: 5px; color: var(--reco-orange, #f26522); font-size: 1.5rem; font-weight: bold; text-align: center; display: block; margin-bottom: 0;">
 							CÙNG GIÁ - KHU VỰC</h2>
 					</div>
 
-					<div class="slider slider-nav-circle slider-nav-light row"
-						data-flickity-options='{"cellAlign": "left", "wrapAround": true, "pageDots": true, "autoPlay": false, "prevNextButtons": true, "groupCells": "100%"}'>
-						<?php reco_render_sale_cards($related_query, true); ?>
+					<div class="slider slider-nav-circle slider-nav-outside reco-related-slider row"
+						data-flickity-options='{"cellAlign": "left", "wrapAround": false, "pageDots": true, "autoPlay": false, "prevNextButtons": true, "groupCells": "100%"}'>
+						<?php reco_render_project_archive_cards($related_query, true); ?>
 					</div>
 				</div>
 			</section>
-		<?php endif; ?>
+		<?php endif; wp_reset_postdata(); ?>
 
 	</article>
 <?php endwhile; ?>

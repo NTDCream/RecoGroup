@@ -163,18 +163,7 @@ function reco_register_sale_detail_fields()
 					'instructions' => 'Nhập số điện thoại liên hệ cho tin đăng này.',
 					'wrapper' => array('width' => 33),
 				),
-				array(
-					'key' => 'field_reco_sale_project_related',
-					'label' => 'Dự án liên quan',
-					'name' => 'reco_sale_project_related',
-					'type' => 'relationship',
-					'instructions' => 'Chọn dự án liên quan đến tin rao bán này (nếu có).',
-					'post_type' => array('reco_project'),
-					'filters' => array('search'),
-					'return_format' => 'id',
-					'min' => 0,
-					'max' => 1,
-				),
+
 				array(
 					'key' => 'field_reco_sale_gallery',
 					'label' => 'Các hình ảnh liên quan',

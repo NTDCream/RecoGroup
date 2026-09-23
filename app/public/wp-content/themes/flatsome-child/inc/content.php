@@ -443,7 +443,7 @@ add_action('pre_get_posts', 'reco_filter_project_archive');
 /**
  * Render Project Cards Loop
  */
-function reco_render_project_archive_cards($query = null) {
+function reco_render_project_archive_cards($query = null, $slider = false) {
 	if (!$query) {
 		global $wp_query;
 		$query = $wp_query;
@@ -465,6 +465,10 @@ function reco_render_project_archive_cards($query = null) {
 		$is_hot     = in_array( $status_raw, array( 'dang-mo-ban' ), true );
 
 		$price = reco_project_display_price( $project_id, 'mua' );
+		
+		if ( $slider ) {
+			echo '<div class="col large-3 medium-4 small-12" style="padding-bottom: 0;">';
+		}
 		?>
 		<article class="reco-pcard">
 			<a class="reco-pcard__media" href="<?php the_permalink(); ?>" aria-label="Xem dự án <?php the_title_attribute(); ?>">
@@ -488,6 +492,9 @@ function reco_render_project_archive_cards($query = null) {
 			</div>
 		</article>
 		<?php
+		if ( $slider ) {
+			echo '</div>';
+		}
 	}
 }
 
