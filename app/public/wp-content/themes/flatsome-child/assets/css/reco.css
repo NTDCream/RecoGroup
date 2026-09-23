@@ -6947,3 +6947,12 @@ body.single-reco_sale .reco-footer-cta {
 .reco-related-slider .flickity-page-dots {
 	bottom: -10px !important;
 }
+
+/* Hide all breadcrumbs */
+.reco-news-breadcrumb,
+.reco-sale-breadcrumb,
+.reco-project-breadcrumb,
+.nav-breadcrumbs,
+.breadcrumbs {
+	display: none !important;
+}
