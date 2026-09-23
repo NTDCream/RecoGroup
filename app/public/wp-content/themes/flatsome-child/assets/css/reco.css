@@ -4331,15 +4331,13 @@ body.reco-menu-open {
 	border-radius: 8px;
 }
 
-/* Pagination */
-.reco-project-archive--v2 .navigation.pagination,
-.reco-sale-archive .navigation.pagination {
+/* Pagination — Global */
+.navigation.pagination {
 	margin-top: 42px;
 	text-align: center;
 }
 
-.reco-project-archive--v2 .nav-links,
-.reco-sale-archive .nav-links {
+.navigation.pagination .nav-links {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -4347,10 +4345,8 @@ body.reco-menu-open {
 	justify-content: center;
 }
 
-.reco-project-archive--v2 .nav-links a,
-.reco-project-archive--v2 .nav-links span,
-.reco-sale-archive .nav-links a,
-.reco-sale-archive .nav-links span {
+.navigation.pagination .nav-links a,
+.navigation.pagination .nav-links span {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -4369,8 +4365,7 @@ body.reco-menu-open {
 	line-height: 1;
 }
 
-.reco-project-archive--v2 .nav-links a:hover,
-.reco-sale-archive .nav-links a:hover {
+.navigation.pagination .nav-links a:hover {
 	background: var(--reco-blue, #1a5caa);
 	border-color: var(--reco-blue, #1a5caa);
 	color: #fff;
@@ -4378,8 +4373,7 @@ body.reco-menu-open {
 	transform: translateY(-1px);
 }
 
-.reco-project-archive--v2 .nav-links .current,
-.reco-sale-archive .nav-links .current {
+.navigation.pagination .nav-links .current {
 	background: var(--reco-blue, #1a5caa);
 	border-color: var(--reco-blue, #1a5caa);
 	color: #fff;
@@ -4388,8 +4382,7 @@ body.reco-menu-open {
 	cursor: default;
 }
 
-.reco-project-archive--v2 .nav-links .dots,
-.reco-sale-archive .nav-links .dots {
+.navigation.pagination .nav-links .dots {
 	border: none;
 	background: transparent;
 	color: #718096;
@@ -4398,10 +4391,8 @@ body.reco-menu-open {
 	cursor: default;
 }
 
-.reco-project-archive--v2 .nav-links .prev,
-.reco-project-archive--v2 .nav-links .next,
-.reco-sale-archive .nav-links .prev,
-.reco-sale-archive .nav-links .next {
+.navigation.pagination .nav-links .prev,
+.navigation.pagination .nav-links .next {
 	font-weight: 600;
 	padding: 0 18px;
 	gap: 6px;

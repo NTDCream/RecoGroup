@@ -1122,11 +1122,13 @@ function reco_render_news($category = null)
 
 					<div class="reco-news-list" aria-label="Danh sách tin tức" id="reco-news-list-container">
 						<?php
+						$news_paged = isset($_GET['trang']) ? max(1, (int) $_GET['trang']) : 1;
+						$per_page = 10;
 						$args = array_merge($category_query, array(
 							'post_type' => 'post',
 							'post_status' => 'publish',
-							'posts_per_page' => 10,
-							'offset' => 3,
+							'posts_per_page' => $per_page,
+							'offset' => 3 + (($news_paged - 1) * $per_page),
 						));
 						$news_query = new WP_Query($args);
 						if ($news_query->have_posts()) {
@@ -1137,16 +1139,23 @@ function reco_render_news($category = null)
 						?>
 					</div>
 					<?php
-					$total_pages = ceil(max(0, $news_query->found_posts - 3) / 10);
+					$total_remaining = max(0, $news_query->found_posts - 3);
+					$total_pages = ceil($total_remaining / $per_page);
 					if ($total_pages > 1):
-						?>
-						<div class="reco-news-loadmore">
-							<button id="reco-news-loadmore-btn" data-page="1"
-								data-category="<?php echo esc_attr($category_id); ?>" class="reco-button reco-button--ghost">Xem
-								thêm
-								<span aria-hidden="true">↓</span></button>
-						</div>
-					<?php endif; ?>
+						$base_url = $is_category_archive ? get_term_link($category) : home_url('/tin-tuc/');
+						$pagination_links = paginate_links(array(
+							'base'      => esc_url($base_url) . '%_%',
+							'format'    => '?trang=%#%',
+							'current'   => $news_paged,
+							'total'     => $total_pages,
+							'prev_text' => '&larr; Trước',
+							'next_text' => 'Sau &rarr;',
+							'mid_size'  => 1,
+						));
+						if ($pagination_links) {
+							echo '<nav class="navigation pagination" aria-label="Phân trang"><div class="nav-links">' . $pagination_links . '</div></nav>';
+						}
+					endif; ?>
 				</main>
 
 				<aside class="reco-news-page__sidebar" aria-label="Danh mục và tin tham khảo">
