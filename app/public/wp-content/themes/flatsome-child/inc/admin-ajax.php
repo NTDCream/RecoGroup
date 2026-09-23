@@ -348,3 +348,102 @@ function reco_ajax_sale_search() {
 }
 add_action('wp_ajax_reco_sale_search', 'reco_ajax_sale_search');
 add_action('wp_ajax_nopriv_reco_sale_search', 'reco_ajax_sale_search');
+
+/**
+ * AJAX handler for Dự án search and sort
+ */
+function reco_ajax_project_search() {
+	$paged = isset($_REQUEST['paged']) ? max(1, intval($_REQUEST['paged'])) : (isset($_REQUEST['page']) ? max(1, intval($_REQUEST['page'])) : 1);
+	
+	$args = array(
+		'post_type'      => 'reco_project',
+		'post_status'    => 'publish',
+		'posts_per_page' => 12,
+		'paged'          => $paged,
+	);
+
+	$sap_xep = isset($_REQUEST['sap-xep']) ? sanitize_key(wp_unslash($_REQUEST['sap-xep'])) : 'moi-nhat';
+	$tax     = isset($_REQUEST['tax']) ? sanitize_key(wp_unslash($_REQUEST['tax'])) : '';
+	$term    = isset($_REQUEST['term']) ? sanitize_key(wp_unslash($_REQUEST['term'])) : '';
+
+	if ($tax && $term) {
+		$args['tax_query'] = array(
+			array(
+				'taxonomy' => $tax,
+				'field'    => 'slug',
+				'terms'    => $term,
+			)
+		);
+	}
+
+	if ($sap_xep === 'gia-tang') {
+		$args['orderby'] = 'meta_value_num';
+		$args['meta_key'] = 'reco_project_price_value';
+		$args['order'] = 'ASC';
+	} elseif ($sap_xep === 'gia-giam') {
+		$args['orderby'] = 'meta_value_num';
+		$args['meta_key'] = 'reco_project_price_value';
+		$args['order'] = 'DESC';
+	} elseif ($sap_xep === 'gia-thoa-thuan') {
+		$args['meta_query'] = array(
+			array(
+				'key' => 'reco_project_price_value',
+				'value' => 0,
+				'compare' => '=',
+				'type' => 'DECIMAL(10,2)'
+			)
+		);
+	} else {
+		$args['orderby'] = array('menu_order' => 'ASC', 'date' => 'DESC');
+	}
+
+	$query = new WP_Query($args);
+
+	ob_start();
+	if ($query->have_posts()): ?>
+		<div class="reco-project-grid-v2">
+			<?php reco_render_project_archive_cards($query); ?>
+		</div>
+		<?php
+		$query_args = $_REQUEST;
+		unset($query_args['action']);
+		unset($query_args['paged']);
+		unset($query_args['tax']);
+		unset($query_args['term']);
+		
+		if ($tax && $term) {
+			$base_url = get_term_link($term, $tax);
+		} else {
+			$base_url = get_post_type_archive_link('reco_project') ?: home_url('/du-an/');
+		}
+		
+		$pagination_links = paginate_links(array(
+			'base'      => trailingslashit(esc_url($base_url)) . '%_%',
+			'format'    => 'page/%#%/',
+			'current'   => $paged,
+			'total'     => $query->max_num_pages,
+			'prev_text' => '← Trước',
+			'next_text' => 'Sau →',
+			'add_args'  => $query_args,
+		));
+		if ($pagination_links) {
+			echo '<nav class="navigation pagination" aria-label="Phân trang"><div class="nav-links">' . $pagination_links . '</div></nav>';
+		}
+		?>
+	<?php else: ?>
+		<div class="reco-project-archive__empty">
+			<h2>Chưa tìm thấy dự án phù hợp</h2>
+			<p>Hãy quay lại sau để xem các dự án mới nhất.</p>
+		</div>
+	<?php endif;
+
+	wp_reset_postdata();
+	$html = ob_get_clean();
+
+	wp_send_json_success(array(
+		'html' => $html
+	));
+}
+add_action('wp_ajax_reco_project_search', 'reco_ajax_project_search');
+add_action('wp_ajax_nopriv_reco_project_search', 'reco_ajax_project_search');
+

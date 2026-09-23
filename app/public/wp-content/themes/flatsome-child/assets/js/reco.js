@@ -511,3 +511,123 @@
         });
     });
 })();
+
+// Project Archive AJAX logic
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const resultsContainer = document.getElementById('reco-project-results-container');
+        const sortSelect = document.getElementById('reco-project-sort');
+        const taxInput = document.getElementById('reco-project-tax');
+        const termInput = document.getElementById('reco-project-term');
+        
+        if (!resultsContainer || typeof recoAjax === 'undefined') return;
+
+        const performProjectSearch = (url, isPushState = true) => {
+            resultsContainer.classList.add('is-loading');
+            
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    resultsContainer.innerHTML = result.data.html;
+                    if (isPushState) {
+                        window.history.pushState({ path: url }, '', url);
+                    }
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => {
+                resultsContainer.classList.remove('is-loading');
+                const offset = resultsContainer.getBoundingClientRect().top + window.scrollY - 100;
+                if (window.scrollY > offset) {
+                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                }
+            });
+        };
+
+        const triggerSearch = (e, targetUrl = null) => {
+            if (e && e.preventDefault) e.preventDefault();
+            
+            let params = new URLSearchParams();
+            
+            if (sortSelect) {
+                params.append('sap-xep', sortSelect.value);
+            }
+            if (taxInput && taxInput.value) {
+                params.append('tax', taxInput.value);
+            }
+            if (termInput && termInput.value) {
+                params.append('term', termInput.value);
+            }
+            
+            if (targetUrl) {
+                const urlObj = new URL(targetUrl);
+                urlObj.searchParams.forEach((val, key) => {
+                    params.set(key, val);
+                });
+                
+                const pathMatches = urlObj.pathname.match(/\/page\/(\d+)/);
+                if (pathMatches && pathMatches[1]) {
+                    params.set('paged', pathMatches[1]);
+                }
+            }
+
+            params.append('action', 'reco_project_search');
+            const ajaxUrl = recoAjax.ajaxurl + '?' + params.toString();
+            
+            let cleanUrl = window.location.pathname;
+            const cleanParams = new URLSearchParams();
+            if (sortSelect && sortSelect.value && sortSelect.value !== 'moi-nhat') {
+                cleanParams.append('sap-xep', sortSelect.value);
+            }
+            
+            if (targetUrl) {
+                const urlObj = new URL(targetUrl);
+                cleanUrl = urlObj.pathname;
+                cleanParams.delete('action');
+                cleanParams.delete('tax');
+                cleanParams.delete('term');
+            }
+            
+            const queryString = cleanParams.toString();
+            cleanUrl = cleanUrl + (queryString ? '?' + queryString : '');
+
+            performProjectSearch(ajaxUrl, false);
+            window.history.pushState({ path: cleanUrl }, '', cleanUrl);
+        };
+
+        if (sortSelect) {
+            sortSelect.addEventListener('change', triggerSearch);
+        }
+
+        resultsContainer.addEventListener('click', function(e) {
+            const paginationLink = e.target.closest('.pagination a');
+            if (paginationLink) {
+                e.preventDefault();
+                triggerSearch(null, paginationLink.href);
+            }
+        });
+        
+        window.addEventListener('popstate', function(e) {
+            if (e.state && e.state.path) {
+                const urlObj = new URL(e.state.path, window.location.origin);
+                let params = new URLSearchParams(urlObj.search);
+                if (taxInput && taxInput.value) params.append('tax', taxInput.value);
+                if (termInput && termInput.value) params.append('term', termInput.value);
+                const pathMatches = urlObj.pathname.match(/\/page\/(\d+)/);
+                if (pathMatches && pathMatches[1]) params.set('paged', pathMatches[1]);
+                params.append('action', 'reco_project_search');
+                const ajaxUrl = recoAjax.ajaxurl + '?' + params.toString();
+                performProjectSearch(ajaxUrl, false);
+            } else {
+                window.location.reload();
+            }
+        });
+    });
+})();
+

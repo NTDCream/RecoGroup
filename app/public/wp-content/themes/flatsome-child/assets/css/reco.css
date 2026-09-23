@@ -4332,8 +4332,79 @@ body.reco-menu-open {
 }
 
 /* Pagination */
-.reco-project-archive--v2 .navigation.pagination {
+.reco-project-archive--v2 .navigation.pagination,
+.reco-sale-archive .navigation.pagination {
 	margin-top: 42px;
+	text-align: center;
+}
+
+.reco-project-archive--v2 .nav-links,
+.reco-sale-archive .nav-links {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.reco-project-archive--v2 .nav-links a,
+.reco-project-archive--v2 .nav-links span,
+.reco-sale-archive .nav-links a,
+.reco-sale-archive .nav-links span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 40px;
+	height: 40px;
+	padding: 0 14px;
+	border: 1px solid #d1d9e6;
+	border-radius: 8px;
+	background: #fff;
+	color: var(--reco-ink, #1f2935);
+	font-size: 0.92rem;
+	font-weight: 500;
+	text-decoration: none;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	line-height: 1;
+}
+
+.reco-project-archive--v2 .nav-links a:hover,
+.reco-sale-archive .nav-links a:hover {
+	background: var(--reco-blue, #1a5caa);
+	border-color: var(--reco-blue, #1a5caa);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(26, 92, 170, 0.25);
+	transform: translateY(-1px);
+}
+
+.reco-project-archive--v2 .nav-links .current,
+.reco-sale-archive .nav-links .current {
+	background: var(--reco-blue, #1a5caa);
+	border-color: var(--reco-blue, #1a5caa);
+	color: #fff;
+	font-weight: 600;
+	box-shadow: 0 2px 8px rgba(26, 92, 170, 0.3);
+	cursor: default;
+}
+
+.reco-project-archive--v2 .nav-links .dots,
+.reco-sale-archive .nav-links .dots {
+	border: none;
+	background: transparent;
+	color: #718096;
+	min-width: auto;
+	padding: 0 4px;
+	cursor: default;
+}
+
+.reco-project-archive--v2 .nav-links .prev,
+.reco-project-archive--v2 .nav-links .next,
+.reco-sale-archive .nav-links .prev,
+.reco-sale-archive .nav-links .next {
+	font-weight: 600;
+	padding: 0 18px;
+	gap: 6px;
 }
 
 /* Responsive sort area */
@@ -5953,10 +6024,6 @@ body.single-reco_project .reco-footer-cta {
 	margin: 0;
 	font-size: 0.78rem;
 	color: var(--reco-muted);
-}
-
-.reco-sale-archive .navigation.pagination {
-	margin-top: 42px;
 }
 
 /* ==========================================================================
