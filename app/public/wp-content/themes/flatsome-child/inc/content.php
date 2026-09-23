@@ -200,7 +200,6 @@ function reco_project_transaction_choices()
 {
 	return array(
 		'mua' => 'Mua',
-		'cho-thue' => 'Cho thuê',
 	);
 }
 
@@ -266,7 +265,7 @@ function reco_project_price_label($value)
 		}
 	}
 
-	return $value ?: 'Liên hệ';
+	return $value ?: 'Thỏa thuận';
 }
 
 /**
@@ -301,7 +300,7 @@ function reco_project_display_price($post_id, $transaction = '')
 	if (is_numeric($exact_price) && (float) $exact_price > 0) {
 		$formatted = number_format((float) $exact_price, 2, ',', '.');
 		$formatted = rtrim(rtrim($formatted, '0'), ',');
-		$unit = 'cho-thue' === $transaction ? ' triệu/tháng' : ' tỷ đồng';
+		$unit = ' triệu/m²';
 		return $formatted . $unit;
 	}
 

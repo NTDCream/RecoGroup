@@ -16,10 +16,10 @@ while ( have_posts() ) :
 	$province            = reco_project_field( 'reco_project_province', $post_id );
 	$commune             = reco_project_field( 'reco_project_commune', $post_id );
 	$address             = implode( ', ', array_filter( array( $commune, $province ) ) );
-	$transaction         = reco_project_field( 'reco_project_transaction', $post_id, 'mua' );
-	$transaction_label   = reco_project_transaction_label( $transaction );
-	$price               = reco_project_display_price( $post_id, $transaction );
-	$price_caption       = 'cho-thue' === $transaction ? 'Giá thuê' : 'Giá bán';
+	$transaction         = 'mua';
+	$transaction_label   = 'Mua';
+	$price               = reco_project_display_price( $post_id, 'mua' );
+	$price_caption       = 'Giá bán';
 	$hotline             = reco_project_field( 'reco_project_hotline', $post_id, '0934 524 445' );
 	$hotline_href        = preg_replace( '/[^0-9+]/', '', $hotline );
 	$types               = reco_project_term_names( $post_id, 'reco_project_type' );

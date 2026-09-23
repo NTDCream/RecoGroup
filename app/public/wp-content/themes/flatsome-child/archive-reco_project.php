@@ -62,8 +62,7 @@ $found_posts = (int) $GLOBALS['wp_query']->found_posts;
 						$status_raw = reco_project_field( 'reco_project_status', $project_id );
 						$is_hot     = in_array( $status_raw, array( 'dang-mo-ban' ), true );
 
-						$transaction_value = reco_project_field( 'reco_project_transaction', $project_id, 'mua' );
-						$price             = reco_project_display_price( $project_id, $transaction_value );
+						$price = reco_project_display_price( $project_id, 'mua' );
 						?>
 						<article class="reco-pcard">
 							<a class="reco-pcard__media" href="<?php the_permalink(); ?>" aria-label="Xem dự án <?php the_title_attribute(); ?>">
