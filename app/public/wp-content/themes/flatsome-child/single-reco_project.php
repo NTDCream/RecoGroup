@@ -13,7 +13,9 @@ while ( have_posts() ) :
 	$gallery             = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_project_gallery', $post_id, array() ) ) ) );
 	$facts               = (array) reco_project_field( 'reco_project_facts', $post_id, array() );
 	$tagline             = reco_project_field( 'reco_project_tagline', $post_id );
-	$address             = reco_project_field( 'reco_project_address', $post_id );
+	$province            = reco_project_field( 'reco_project_province', $post_id );
+	$commune             = reco_project_field( 'reco_project_commune', $post_id );
+	$address             = implode( ', ', array_filter( array( $commune, $province ) ) );
 	$transaction         = reco_project_field( 'reco_project_transaction', $post_id, 'mua' );
 	$transaction_label   = reco_project_transaction_label( $transaction );
 	$price               = reco_project_display_price( $post_id, $transaction );
@@ -28,6 +30,9 @@ while ( have_posts() ) :
 	$overview_content    = reco_project_field( 'reco_project_overview_content', $post_id, get_the_content() );
 	$overview_image      = absint( reco_project_field( 'reco_project_overview_image', $post_id, 0 ) );
 	$location_tabs       = (array) reco_project_field( 'reco_project_location_tabs', $post_id, array() );
+	$location_tabs       = array_values( array_filter( $location_tabs, function( $tab ) {
+		return ! empty( $tab['reco_location_tab_content'] ) || ! empty( $tab['reco_location_tab_image'] );
+	} ) );
 	$amenities_heading   = reco_project_field( 'reco_project_amenities_heading', $post_id, 'Tiện ích dự án ' . get_the_title() );
 	$amenities_description = reco_project_field( 'reco_project_amenities_description', $post_id );
 	$amenities_gallery   = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_project_amenities_gallery', $post_id, array() ) ) ) );
@@ -36,7 +41,7 @@ while ( have_posts() ) :
 	$floorplan_tabs      = (array) reco_project_field( 'reco_project_floorplan_tabs', $post_id, array() );
 	$apartment_heading   = reco_project_field( 'reco_project_apartment_heading', $post_id, 'Hình ảnh căn hộ mẫu' );
 	$apartment_gallery   = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_project_apartment_gallery', $post_id, array() ) ) ) );
-	$selected_related    = array_values( array_filter( array_map( 'absint', (array) reco_project_field( 'reco_project_related', $post_id, array() ) ) ) );
+
 	$render_rich_text    = static function ( $content ) {
 		return $content ? apply_filters( 'the_content', $content ) : '';
 	};
@@ -240,10 +245,14 @@ while ( have_posts() ) :
 			'post__not_in'   => array( $post_id ),
 			'orderby'        => array( 'menu_order' => 'ASC', 'date' => 'DESC' ),
 		);
-		if ( $selected_related ) {
-			$related_args['post__in']       = $selected_related;
-			$related_args['orderby']        = 'post__in';
-			$related_args['posts_per_page'] = count( $selected_related );
+		if ( $province ) {
+			$related_args['meta_query'] = array(
+				array(
+					'key'     => 'reco_project_province',
+					'value'   => $province,
+					'compare' => '='
+				)
+			);
 		}
 		$related_projects = new WP_Query( $related_args );
 		if ( $related_projects->have_posts() ) :
@@ -255,7 +264,10 @@ while ( have_posts() ) :
 						<?php while ( $related_projects->have_posts() ) :
 							$related_projects->the_post();
 							$related_id        = get_the_ID();
-							$related_locations = reco_project_term_names( $related_id, 'reco_location' );
+							$rel_province      = reco_project_field( 'reco_project_province', $related_id );
+							$rel_commune       = reco_project_field( 'reco_project_commune', $related_id );
+							$rel_loc_parts     = array_filter( array( $rel_commune, $rel_province ) );
+							$related_locations = ! empty( $rel_loc_parts ) ? array( implode( ', ', $rel_loc_parts ) ) : array();
 							$related_types     = reco_project_term_names( $related_id, 'reco_project_type' );
 							$related_price     = reco_project_display_price( $related_id );
 							?>

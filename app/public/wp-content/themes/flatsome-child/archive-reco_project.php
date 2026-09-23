@@ -54,8 +54,10 @@ $found_posts = (int) $GLOBALS['wp_query']->found_posts;
 						$types     = reco_project_term_names( $project_id, 'reco_project_type' );
 						$type_name = ! empty( $types ) ? $types[0] : 'Dự án';
 
-						$locations = reco_project_term_names( $project_id, 'reco_location' );
-						$location  = ! empty( $locations ) ? implode( ', ', $locations ) : 'Đang cập nhật';
+						$province = reco_project_field( 'reco_project_province', $project_id );
+						$commune  = reco_project_field( 'reco_project_commune', $project_id );
+						$location_parts = array_filter( array( $commune, $province ) );
+						$location = ! empty( $location_parts ) ? implode( ', ', $location_parts ) : 'Đang cập nhật';
 
 						$status_raw = reco_project_field( 'reco_project_status', $project_id );
 						$is_hot     = in_array( $status_raw, array( 'dang-mo-ban' ), true );

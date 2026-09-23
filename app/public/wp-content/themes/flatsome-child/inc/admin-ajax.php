@@ -27,6 +27,7 @@ function reco_acf_load_province_field( $field ) {
 	return $field;
 }
 add_filter( 'acf/load_field/name=reco_sale_province', 'reco_acf_load_province_field' );
+add_filter( 'acf/load_field/name=reco_project_province', 'reco_acf_load_province_field' );
 
 /**
  * Populate Commune field choices based on saved province value (for edit screen)
@@ -34,7 +35,9 @@ add_filter( 'acf/load_field/name=reco_sale_province', 'reco_acf_load_province_fi
 function reco_acf_load_commune_field( $field ) {
 	$post_id = isset( $_GET['post'] ) ? intval( $_GET['post'] ) : 0;
 	if ( $post_id ) {
-		$province = get_post_meta( $post_id, 'reco_sale_province', true );
+		$post_type = get_post_type($post_id);
+		$meta_key = ($post_type === 'reco_project') ? 'reco_project_province' : 'reco_sale_province';
+		$province = get_post_meta( $post_id, $meta_key, true );
 		if ( $province ) {
 			$map_data = reco_get_vietnam_map_data();
 			if ( isset( $map_data[ $province ] ) ) {
@@ -48,27 +51,33 @@ function reco_acf_load_commune_field( $field ) {
 	return $field;
 }
 add_filter( 'acf/load_field/name=reco_sale_commune', 'reco_acf_load_commune_field' );
+add_filter( 'acf/load_field/name=reco_project_commune', 'reco_acf_load_commune_field' );
 
 /**
  * Admin script: load communes when province changes
  */
 function reco_admin_sale_location_script() {
 	$screen = get_current_screen();
-	if ( ! $screen || $screen->post_type !== 'reco_sale' ) {
+	if ( ! $screen || ! in_array( $screen->post_type, array('reco_sale', 'reco_project') ) ) {
 		return;
 	}
 	$map_data = reco_get_vietnam_map_data();
+	$is_project = ( $screen->post_type === 'reco_project' );
+	$province_field = $is_project ? 'reco_project_province' : 'reco_sale_province';
+	$commune_field  = $is_project ? 'reco_project_commune' : 'reco_sale_commune';
 	?>
 	<script type="text/javascript">
 	(function($) {
 		var recoMap = <?php echo wp_json_encode( $map_data, JSON_UNESCAPED_UNICODE ); ?>;
+		var provinceField = '<?php echo esc_js( $province_field ); ?>';
+		var communeField = '<?php echo esc_js( $commune_field ); ?>';
 
 		function updateCommuneField(province) {
-			var $communeWrapper = $('[data-name="reco_sale_commune"]');
+			var $communeWrapper = $('[data-name="' + communeField + '"]');
 			var $select = $communeWrapper.find('select');
 
 			if (!$select.length) {
-				$select = $('select[name="acf[field_reco_sale_commune]"]');
+				$select = $('select[name="acf[field_' + communeField + ']"]');
 			}
 			if (!$select.length) return;
 
@@ -84,13 +93,76 @@ function reco_admin_sale_location_script() {
 		}
 
 		$(document).ready(function() {
+			var isProject = <?php echo $is_project ? 'true' : 'false'; ?>;
+			if (isProject) {
+				$('#title').removeAttr('required');
+				$('#post').submit(function(e) {
+					var hasError = false;
+					var firstErrorElement = null;
+					
+					if ($.trim($('#title').val()) === '') {
+						hasError = true;
+						firstErrorElement = $('#titlewrap');
+						
+						$('.reco-title-error').remove();
+						var errorHtml = '<div class="acf-notice -error acf-error-message reco-title-error" style="border-left: 2px solid #cc1818; background: #fbeaea; padding: 10px 15px; margin-bottom: 10px; color: #cc1818;">' +
+										'<p style="margin: 0;">Tên dự án is required</p>' +
+										'</div>';
+						$('#titlewrap').before(errorHtml);
+					} else {
+						$('.reco-title-error').remove();
+					}
+					
+					var thumbnailId = $('#_thumbnail_id').val();
+					if (!thumbnailId || thumbnailId == '-1') {
+						hasError = true;
+						if (!firstErrorElement) {
+							firstErrorElement = $('#postimagediv');
+						}
+						
+						$('.reco-thumb-error').remove();
+						var errorHtml = '<div class="acf-notice -error acf-error-message reco-thumb-error" style="border-left: 2px solid #cc1818; background: #fbeaea; padding: 10px 15px; margin-bottom: 10px; color: #cc1818;">' +
+										'<p style="margin: 0;">Ảnh đại diện is required</p>' +
+										'</div>';
+						$('#postimagediv .inside').prepend(errorHtml);
+						
+						if ($('#postimagediv').hasClass('closed')) {
+							$('#postimagediv').removeClass('closed');
+						}
+					} else {
+						$('.reco-thumb-error').remove();
+					}
+
+					if (hasError) {
+						e.preventDefault();
+						
+						if (firstErrorElement) {
+							$('html, body').animate({
+								scrollTop: firstErrorElement.offset().top - 50
+							}, 500);
+							
+							// If title is missing, focus it after scrolling
+							if ($.trim($('#title').val()) === '') {
+								$('#title').focus();
+							}
+						}
+						
+						setTimeout(function() {
+							$('#publish').removeClass('button-primary-disabled');
+							$('#publish').parent().find('.spinner').removeClass('is-active');
+						}, 100);
+						return false;
+					}
+				});
+			}
+
 			var lastProvince = null;
 			
 			// Bulletproof polling approach: bypasses all ACF/SCF event suppression issues
 			setInterval(function() {
-				var $provinceSelect = $('[data-name="reco_sale_province"] select');
+				var $provinceSelect = $('[data-name="' + provinceField + '"] select');
 				if (!$provinceSelect.length) {
-					$provinceSelect = $('select[name="acf[field_reco_sale_province]"]');
+					$provinceSelect = $('select[name="acf[field_' + provinceField + ']"]');
 				}
 				
 				if ($provinceSelect.length) {

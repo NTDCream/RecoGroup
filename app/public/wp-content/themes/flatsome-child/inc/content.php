@@ -119,8 +119,10 @@ function reco_render_project_cards($limit = 0)
 			$types = reco_project_term_names($post_id, 'reco_project_type');
 			$type = !empty($types) ? implode(', ', $types) : 'Dự án';
 
-			$locations = reco_project_term_names($post_id, 'reco_location');
-			$location = !empty($locations) ? implode(', ', $locations) : 'Đang cập nhật vị trí';
+			$province = reco_project_field('reco_project_province', $post_id);
+			$commune  = reco_project_field('reco_project_commune', $post_id);
+			$location_parts = array_filter(array($commune, $province));
+			$location = !empty($location_parts) ? implode(', ', $location_parts) : 'Đang cập nhật vị trí';
 
 			$tagline = reco_project_field('reco_project_tagline', $post_id);
 
@@ -459,7 +461,10 @@ function reco_project_demo_shortcode()
 					$projects->the_post();
 					$post_id = get_the_ID();
 					$types = reco_project_term_names($post_id, 'reco_project_type');
-					$locations = reco_project_term_names($post_id, 'reco_location');
+					$province = reco_project_field('reco_project_province', $post_id);
+					$commune  = reco_project_field('reco_project_commune', $post_id);
+					$location_parts = array_filter(array($commune, $province));
+					$locations = !empty($location_parts) ? array(implode(', ', $location_parts)) : array();
 					$tags = reco_project_term_names($post_id, 'reco_project_tag');
 					$status = reco_project_status_label(reco_project_field('reco_project_status', $post_id));
 					$tagline = reco_project_field('reco_project_tagline', $post_id);

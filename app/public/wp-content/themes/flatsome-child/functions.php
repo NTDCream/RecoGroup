@@ -524,3 +524,14 @@ function reco_enable_sale_archive_args($args, $post_type) {
     }
     return $args;
 }
+
+/**
+ * Remove taxonomy meta boxes from reco_project
+ */
+function reco_remove_project_taxonomy_metaboxes() {
+	remove_meta_box('tagsdiv-reco_location', 'reco_project', 'side');
+	remove_meta_box('reco_locationdiv', 'reco_project', 'side');
+	remove_meta_box('tagsdiv-reco_project_type', 'reco_project', 'side');
+	remove_meta_box('reco_project_typediv', 'reco_project', 'side');
+}
+add_action('admin_menu', 'reco_remove_project_taxonomy_metaboxes');
